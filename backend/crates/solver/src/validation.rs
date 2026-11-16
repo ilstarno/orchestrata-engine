@@ -1,5 +1,6 @@
 use std::collections::HashSet;
 
+use super::resource_capacity_validation::validate_resource_capacity;
 use crate::{Constraint, CountValueError, Error, Problem};
 
 pub fn validate(problem: &Problem) -> Result<(), Error> {
@@ -61,6 +62,10 @@ pub fn validate(problem: &Problem) -> Result<(), Error> {
                 if *right >= problem.variables.len() {
                     return Err(Error::InvalidVariable(*right));
                 }
+                continue;
+            }
+            Constraint::ResourceCapacity { items, limits } => {
+                validate_resource_capacity(problem, items, limits)?;
                 continue;
             }
             Constraint::PreferValue {

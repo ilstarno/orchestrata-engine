@@ -84,7 +84,8 @@ fn classify_solve_error(error: Error) -> Status {
         Error::EmptyDomain(_)
         | Error::InvalidVariable(_)
         | Error::InvalidWeight
-        | Error::InvalidCountValue { .. } => Status::InvalidProblem,
+        | Error::InvalidCountValue { .. }
+        | Error::InvalidResourceCapacity(_) => Status::InvalidProblem,
         Error::TooManyAssignments => Status::SearchLimit,
         Error::ScoreOverflow | Error::InvalidSolution => Status::InternalError,
     }

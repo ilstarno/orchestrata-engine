@@ -22,6 +22,16 @@ pub mod move_trial;
 pub mod problem;
 #[path = "reference_solver.rs"]
 pub mod reference_solver;
+#[path = "resource_capacity_error.rs"]
+pub mod resource_capacity_error;
+#[path = "resource_capacity_evaluation.rs"]
+mod resource_capacity_evaluation;
+#[path = "resource_capacity_validation.rs"]
+mod resource_capacity_validation;
+#[path = "resource_limit.rs"]
+pub mod resource_limit;
+#[path = "resource_load.rs"]
+pub mod resource_load;
 #[path = "score.rs"]
 pub mod score;
 #[path = "scoring.rs"]

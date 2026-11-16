@@ -1,7 +1,8 @@
-use std::collections::HashSet;
+use std::collections::{BTreeMap, HashSet};
 
 use crate::{
-    Constraint, CountValueTier, Problem, Score, Solution, SolutionValidationError, validate,
+    Constraint, CountValueTier, Problem, ResourceLimit, ResourceLoad, Score, Solution,
+    SolutionValidationError, validate,
 };
 
 /// Checks feasibility and recomputes the score without using the search scorer.
@@ -74,6 +75,11 @@ pub fn verify_solution(
                     return Err(SolutionValidationError::HardConstraintViolation(index));
                 }
             }
+            Constraint::ResourceCapacity { items, limits } => {
+                if !verify_capacity(items, limits, values) {
+                    return Err(SolutionValidationError::HardConstraintViolation(index));
+                }
+            }
             Constraint::PreferValue {
                 variable,
                 value,
@@ -92,4 +98,21 @@ pub fn verify_solution(
     }
 
     Ok(())
+}
+
+fn verify_capacity(items: &[ResourceLoad], limits: &[ResourceLimit], values: &[i64]) -> bool {
+    let mut remaining: BTreeMap<_, _> = limits
+        .iter()
+        .map(|limit| (limit.resource, limit.capacity))
+        .collect();
+    for item in items {
+        let Some(available) = remaining.get_mut(&values[item.variable]) else {
+            return false;
+        };
+        let Some(new_remaining) = available.checked_sub(item.load) else {
+            return false;
+        };
+        *available = new_remaining;
+    }
+    true
 }

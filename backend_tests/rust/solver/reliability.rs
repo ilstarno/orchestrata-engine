@@ -114,6 +114,18 @@ fn feasible_soft_score(problem: &Problem, values: &[i64]) -> Option<i64> {
                     return None;
                 }
             }
+            Constraint::ResourceCapacity { items, limits } => {
+                for limit in limits {
+                    let load: u128 = items
+                        .iter()
+                        .filter(|item| values[item.variable] == limit.resource)
+                        .map(|item| u128::from(item.load))
+                        .sum();
+                    if load > u128::from(limit.capacity) {
+                        return None;
+                    }
+                }
+            }
             Constraint::PreferValue {
                 variable,
                 value,

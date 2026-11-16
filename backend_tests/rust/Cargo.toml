@@ -46,3 +46,7 @@ path = "solver/unit.rs"
 [[test]]
 name = "count_value"
 path = "solver/count_value.rs"
+
+[[test]]
+name = "resource_capacity"
+path = "solver/resource_capacity.rs"
