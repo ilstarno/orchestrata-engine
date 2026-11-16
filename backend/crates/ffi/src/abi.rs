@@ -81,9 +81,10 @@ fn encode_solution(request: &[u8], max_evaluations: u64) -> Result<CString, Stat
 
 fn classify_solve_error(error: Error) -> Status {
     match error {
-        Error::EmptyDomain(_) | Error::InvalidVariable(_) | Error::InvalidWeight => {
-            Status::InvalidProblem
-        }
+        Error::EmptyDomain(_)
+        | Error::InvalidVariable(_)
+        | Error::InvalidWeight
+        | Error::InvalidCountValue { .. } => Status::InvalidProblem,
         Error::TooManyAssignments => Status::SearchLimit,
         Error::ScoreOverflow | Error::InvalidSolution => Status::InternalError,
     }

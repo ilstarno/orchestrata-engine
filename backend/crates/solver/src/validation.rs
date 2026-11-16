@@ -1,4 +1,6 @@
-use crate::{Constraint, Error, Problem};
+use std::collections::HashSet;
+
+use crate::{Constraint, CountValueError, Error, Problem};
 
 pub fn validate(problem: &Problem) -> Result<(), Error> {
     for (index, variable) in problem.variables.iter().enumerate() {
@@ -7,8 +9,39 @@ pub fn validate(problem: &Problem) -> Result<(), Error> {
         }
     }
 
-    for constraint in &problem.constraints {
+    for (constraint_index, constraint) in problem.constraints.iter().enumerate() {
         let (weight, indices): (i64, &[usize]) = match constraint {
+            Constraint::CountValue {
+                variables,
+                min,
+                max,
+                weight,
+                ..
+            } => {
+                let invalid = |reason| Error::InvalidCountValue {
+                    constraint: constraint_index,
+                    reason,
+                };
+                if variables.is_empty() {
+                    return Err(invalid(CountValueError::EmptyScope));
+                }
+                if min > max || *max > variables.len() {
+                    return Err(invalid(CountValueError::InvalidBounds));
+                }
+                if *weight <= 0 {
+                    return Err(invalid(CountValueError::InvalidWeight));
+                }
+                let mut seen = HashSet::with_capacity(variables.len());
+                for &index in variables {
+                    if index >= problem.variables.len() {
+                        return Err(invalid(CountValueError::UnknownVariable(index)));
+                    }
+                    if !seen.insert(index) {
+                        return Err(invalid(CountValueError::DuplicateVariable(index)));
+                    }
+                }
+                continue;
+            }
             Constraint::AllDifferent {
                 variables,
                 hard_weight,

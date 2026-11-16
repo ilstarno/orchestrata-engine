@@ -1,4 +1,5 @@
-use crate::{Constraint, Error, Problem, Score, validate};
+use super::count_value_distance::distance;
+use crate::{Constraint, CountValueTier, Error, Problem, Score, validate};
 
 pub fn score(problem: &Problem, values: &[i64]) -> Result<Score, Error> {
     validate(problem)?;
@@ -17,6 +18,27 @@ pub fn score(problem: &Problem, values: &[i64]) -> Result<Score, Error> {
 
     for constraint in &problem.constraints {
         match constraint {
+            Constraint::CountValue {
+                variables,
+                value,
+                min,
+                max,
+                weight,
+                tier,
+            } => {
+                let count = variables
+                    .iter()
+                    .filter(|&&index| values[index] == *value)
+                    .count();
+                let component = match tier {
+                    CountValueTier::Hard => &mut result.hard,
+                    CountValueTier::Soft => &mut result.soft,
+                };
+                let penalty =
+                    i64::try_from(-(distance(count, *min, *max) as i128) * i128::from(*weight))
+                        .map_err(|_| Error::ScoreOverflow)?;
+                *component = component.checked_add(penalty).ok_or(Error::ScoreOverflow)?;
+            }
             Constraint::AllDifferent {
                 variables,
                 hard_weight,

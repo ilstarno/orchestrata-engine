@@ -82,3 +82,25 @@ fn invoke(problem: &[u8], limit: u64) -> Result<String, i32> {
     unsafe { orchestrata_free_json_v1(output) };
     Ok(text)
 }
+
+#[test]
+fn v1_dispatches_additive_count_value_json_and_keeps_invalid_status() {
+    let request = br#"{
+      "variables":[{"name":"worker","domain":[0,1]}],
+      "constraints":[{"kind":"count_value","variables":[0],"value":1,"min":1,"max":1,"weight":5,"tier":"hard"}]
+    }"#;
+    let result: serde_json::Value = serde_json::from_str(&invoke(request, 2).unwrap()).unwrap();
+    assert_eq!(result["solution"]["values"], serde_json::json!([1]));
+
+    let mut invalid: serde_json::Value = serde_json::from_slice(request).unwrap();
+    invalid["constraints"][0]["max"] = serde_json::json!(2);
+    assert_eq!(
+        invoke(&serde_json::to_vec(&invalid).unwrap(), 2),
+        Err(Status::InvalidProblem as i32)
+    );
+    invalid["constraints"][0]["tier"] = serde_json::json!("unknown");
+    assert_eq!(
+        invoke(&serde_json::to_vec(&invalid).unwrap(), 2),
+        Err(Status::InvalidProblem as i32)
+    );
+}

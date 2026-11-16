@@ -20,7 +20,8 @@ impl<'problem> CompiledProblem<'problem> {
             };
 
             match constraint {
-                Constraint::AllDifferent { variables, .. } => {
+                Constraint::AllDifferent { variables, .. }
+                | Constraint::CountValue { variables, .. } => {
                     variables.iter().copied().for_each(record);
                 }
                 Constraint::NotEqualOffset { left, right, .. } => {

@@ -1,4 +1,5 @@
-use crate::{Constraint, Problem};
+use super::count_value_distance::distance;
+use crate::{Constraint, CountValueTier, Problem};
 
 pub(super) fn candidate_penalty(problem: &Problem, values: &[i64]) -> Option<i128> {
     if problem
@@ -14,6 +15,20 @@ pub(super) fn candidate_penalty(problem: &Problem, values: &[i64]) -> Option<i12
             .constraints
             .iter()
             .filter_map(|rule| match rule {
+                Constraint::CountValue {
+                    variables,
+                    value,
+                    min,
+                    max,
+                    weight,
+                    tier: CountValueTier::Soft,
+                } => {
+                    let count = variables
+                        .iter()
+                        .filter(|&&index| values[index] == *value)
+                        .count();
+                    Some((distance(count, *min, *max) as i128) * i128::from(*weight))
+                }
                 Constraint::PreferValue {
                     variable,
                     value,
@@ -21,12 +36,32 @@ pub(super) fn candidate_penalty(problem: &Problem, values: &[i64]) -> Option<i12
                 } if values[*variable] != *value => Some(i128::from(*soft_weight)),
                 _ => None,
             })
-            .sum(),
+            // Penalties beyond this sentinel cannot be returned in a Score.
+            .fold(0_i128, |total, penalty| {
+                total.saturating_add(penalty).min(-i128::from(i64::MIN) + 1)
+            }),
     )
 }
 
 fn violates_hard_rule(constraint: &Constraint, values: &[i64]) -> bool {
     match constraint {
+        Constraint::CountValue {
+            variables,
+            value,
+            min,
+            max,
+            tier,
+            ..
+        } => {
+            if *tier == CountValueTier::Soft {
+                return false;
+            }
+            let count = variables
+                .iter()
+                .filter(|&&index| values[index] == *value)
+                .count();
+            distance(count, *min, *max) != 0
+        }
         Constraint::AllDifferent { variables, .. } => {
             variables.iter().enumerate().any(|(i, &left)| {
                 variables[i + 1..]
