@@ -9,6 +9,10 @@ pub enum Error {
         constraint: usize,
         reason: super::count_value_error::CountValueError,
     },
+    InvalidPrecedence {
+        constraint: usize,
+        reason: super::precedence_error::PrecedenceError,
+    },
     InvalidResourceCapacity(ResourceCapacityError),
     TooManyAssignments,
     ScoreOverflow,

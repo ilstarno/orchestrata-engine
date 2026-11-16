@@ -1,4 +1,7 @@
-use super::{count_value_distance::distance, resource_capacity_evaluation::overload_penalty};
+use super::{
+    count_value_distance::distance, precedence_shortfall::shortfall,
+    resource_capacity_evaluation::overload_penalty,
+};
 use crate::{Constraint, CountValueTier, Error, Problem, Score, validate};
 
 pub fn score(problem: &Problem, values: &[i64]) -> Result<Score, Error> {
@@ -66,6 +69,15 @@ pub fn score(problem: &Problem, values: &[i64]) -> Result<Score, Error> {
                         .checked_sub(*hard_weight)
                         .ok_or(Error::ScoreOverflow)?;
                 }
+            }
+            Constraint::Precedence {
+                before,
+                after,
+                min_gap,
+            } => {
+                let penalty = shortfall(values[*before], values[*after], *min_gap);
+                let hard = i128::from(result.hard) - penalty;
+                result.hard = i64::try_from(hard).map_err(|_| Error::ScoreOverflow)?;
             }
             Constraint::ResourceCapacity { items, limits } => {
                 let penalty = overload_penalty(items, limits, |index| values[index])?;

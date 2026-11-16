@@ -28,6 +28,10 @@ impl<'problem> CompiledProblem<'problem> {
                     record(*left);
                     record(*right);
                 }
+                Constraint::Precedence { before, after, .. } => {
+                    record(*before);
+                    record(*after);
+                }
                 Constraint::ResourceCapacity { items, .. } => {
                     items.iter().for_each(|item| record(item.variable));
                 }

@@ -75,6 +75,16 @@ pub fn verify_solution(
                     return Err(SolutionValidationError::HardConstraintViolation(index));
                 }
             }
+            Constraint::Precedence {
+                before,
+                after,
+                min_gap,
+            } => {
+                let actual_gap = i128::from(values[*after]) - i128::from(values[*before]);
+                if actual_gap < i128::from(*min_gap) {
+                    return Err(SolutionValidationError::HardConstraintViolation(index));
+                }
+            }
             Constraint::ResourceCapacity { items, limits } => {
                 if !verify_capacity(items, limits, values) {
                     return Err(SolutionValidationError::HardConstraintViolation(index));

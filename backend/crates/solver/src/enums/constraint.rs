@@ -26,6 +26,13 @@ pub enum Constraint {
         offset: i64,
         hard_weight: i64,
     },
+    /// Requires `after >= before + min_gap` in a consistent caller-chosen unit.
+    /// The hard penalty is the positive shortfall in that unit.
+    Precedence {
+        before: usize,
+        after: usize,
+        min_gap: u64,
+    },
     /// Limits the sum of assigned item loads per resource in one unit/dimension.
     /// The hard penalty is the total amount above the resource limits.
     ResourceCapacity {

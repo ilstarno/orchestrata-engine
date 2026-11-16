@@ -6,6 +6,7 @@ pub use module::assignment_change::AssignmentChange;
 pub use module::assignment_change_reason::AssignmentChangeReason;
 pub use module::compare_solutions::compare_solutions;
 pub use module::compiled_problem::CompiledProblem;
+pub use module::enums::precedence_error::PrecedenceError;
 pub use module::enums::{constraint::Constraint, error::Error};
 pub use module::enums::{count_value_error::CountValueError, count_value_tier::CountValueTier};
 pub use module::incremental_scorer::IncrementalScorer;
