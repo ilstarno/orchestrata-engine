@@ -1,4 +1,7 @@
-use super::{count_value_distance::distance, resource_capacity_evaluation::exceeds_capacity};
+use super::{
+    count_value_distance::distance, precedence_shortfall::shortfall,
+    resource_capacity_evaluation::exceeds_capacity,
+};
 use crate::{Constraint, CountValueTier, Problem};
 
 pub(super) fn candidate_penalty(problem: &Problem, values: &[i64]) -> Option<i128> {
@@ -75,6 +78,11 @@ fn violates_hard_rule(constraint: &Constraint, values: &[i64]) -> bool {
             offset,
             ..
         } => i128::from(values[*left]) - i128::from(values[*right]) == i128::from(*offset),
+        Constraint::Precedence {
+            before,
+            after,
+            min_gap,
+        } => shortfall(values[*before], values[*after], *min_gap) != 0,
         Constraint::ResourceCapacity { items, limits } => {
             exceeds_capacity(items, limits, |index| values[index])
         }

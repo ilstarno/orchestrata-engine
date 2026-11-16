@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 
 use super::resource_capacity_validation::validate_resource_capacity;
-use crate::{Constraint, CountValueError, Error, Problem};
+use crate::{Constraint, CountValueError, Error, PrecedenceError, Problem};
 
 pub fn validate(problem: &Problem) -> Result<(), Error> {
     for (index, variable) in problem.variables.iter().enumerate() {
@@ -61,6 +61,22 @@ pub fn validate(problem: &Problem) -> Result<(), Error> {
                 }
                 if *right >= problem.variables.len() {
                     return Err(Error::InvalidVariable(*right));
+                }
+                continue;
+            }
+            Constraint::Precedence { before, after, .. } => {
+                let invalid = |reason| Error::InvalidPrecedence {
+                    constraint: constraint_index,
+                    reason,
+                };
+                if *before >= problem.variables.len() {
+                    return Err(invalid(PrecedenceError::UnknownBeforeVariable(*before)));
+                }
+                if *after >= problem.variables.len() {
+                    return Err(invalid(PrecedenceError::UnknownAfterVariable(*after)));
+                }
+                if before == after {
+                    return Err(invalid(PrecedenceError::SameVariable(*before)));
                 }
                 continue;
             }

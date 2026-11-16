@@ -114,6 +114,16 @@ fn feasible_soft_score(problem: &Problem, values: &[i64]) -> Option<i64> {
                     return None;
                 }
             }
+            Constraint::Precedence {
+                before,
+                after,
+                min_gap,
+            } => {
+                let earliest = i128::from(values[*before]) + i128::from(*min_gap);
+                if i128::from(values[*after]) < earliest {
+                    return None;
+                }
+            }
             Constraint::ResourceCapacity { items, limits } => {
                 for limit in limits {
                     let load: u128 = items

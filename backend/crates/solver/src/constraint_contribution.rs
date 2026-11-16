@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
 use super::{
-    count_value_distance::distance, resource_capacity_evaluation::overload_penalty,
-    wide_score::WideScore,
+    count_value_distance::distance, precedence_shortfall::shortfall,
+    resource_capacity_evaluation::overload_penalty, wide_score::WideScore,
 };
 use crate::{Constraint, CountValueTier, Error};
 
@@ -57,6 +57,13 @@ pub(super) fn contribution(
             if i128::from(value_at(*left)) == i128::from(value_at(*right)) + i128::from(*offset) {
                 result.hard = -i128::from(*hard_weight);
             }
+        }
+        Constraint::Precedence {
+            before,
+            after,
+            min_gap,
+        } => {
+            result.hard = -shortfall(value_at(*before), value_at(*after), *min_gap);
         }
         Constraint::ResourceCapacity { items, limits } => {
             result.hard = -overload_penalty(items, limits, value_at)?;

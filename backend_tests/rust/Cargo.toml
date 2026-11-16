@@ -50,3 +50,7 @@ path = "solver/count_value.rs"
 [[test]]
 name = "resource_capacity"
 path = "solver/resource_capacity.rs"
+
+[[test]]
+name = "precedence"
+path = "solver/precedence.rs"

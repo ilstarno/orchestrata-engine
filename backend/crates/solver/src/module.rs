@@ -18,6 +18,8 @@ pub mod incremental_scorer;
 pub mod local_search;
 #[path = "move_trial.rs"]
 pub mod move_trial;
+#[path = "precedence_shortfall.rs"]
+mod precedence_shortfall;
 #[path = "problem.rs"]
 pub mod problem;
 #[path = "reference_solver.rs"]
