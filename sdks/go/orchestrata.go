@@ -15,6 +15,11 @@ import (
 
 const ABIVersion uint32 = 1
 
+const (
+	maxV1RequestBytes = int(C.ORCHESTRATA_MAX_REQUEST_BYTES)
+	maxV1ResultBytes  = int(C.ORCHESTRATA_MAX_RESULT_BYTES)
+)
+
 type Status int32
 
 const (
