@@ -5,6 +5,7 @@ mod courier;
 mod courier_mode;
 mod courier_route;
 mod location_id;
+pub mod paths;
 mod route_construction;
 mod route_construction_error;
 mod route_construction_stop;

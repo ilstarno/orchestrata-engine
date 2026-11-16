@@ -66,3 +66,7 @@ path = "solver/route_construction.rs"
 [[test]]
 name = "lead_ownership"
 path = "solver/lead_ownership.rs"
+
+[[test]]
+name = "shortest_paths"
+path = "solver/shortest_paths.rs"
