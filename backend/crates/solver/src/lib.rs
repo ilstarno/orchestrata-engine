@@ -6,6 +6,7 @@ pub mod lead_ownership;
 #[path = "module.rs"]
 mod module;
 pub mod routing;
+pub mod traffic_placement;
 
 pub use module::assignment_change::AssignmentChange;
 pub use module::assignment_change_reason::AssignmentChangeReason;

@@ -119,3 +119,10 @@ Propose slots and panels for interviews already approved for scheduling. The
 solver keeps confirmed appointments fixed, avoids panelist conflicts, and
 explains meetings it holds. It does not evaluate applicants or write to
 calendars. See [the scheduling guide](docs/interview-scheduling.md).
+
+## Review DNS and load-balancer placement in Rust
+
+Generate advisory DNS weights for a permitted region and allocate additional
+load among healthy backends with room. Both functions report exclusions; the
+backend planner also exposes unserved demand. They do not connect to or change
+live resources. See [the traffic placement guide](docs/traffic-placement.md).
