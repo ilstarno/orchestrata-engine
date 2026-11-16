@@ -71,7 +71,7 @@ pub fn verify_routes(
     Ok(())
 }
 
-fn validate_problem(problem: &RoutingProblem) -> Result<(), Error> {
+pub(super) fn validate_problem(problem: &RoutingProblem) -> Result<(), Error> {
     for (index, courier) in problem.couriers.iter().enumerate() {
         if !courier.shift.is_valid() {
             return Err(Error::InvalidShift(index));

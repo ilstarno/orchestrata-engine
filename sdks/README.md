@@ -38,7 +38,21 @@ library="$lib/liborchestrata_ffi.so"
 include="$PWD/backend/crates/ffi/include"
 ```
 
-**Python 3.10+.** Install from `sdks/python` or add that directory to `PYTHONPATH`. Construct `Solver(library)` and call `solve(problem, limit)` with a mapping, or `solve_json(problem_bytes, limit)`.
+**Python 3.10+.** Install from `sdks/python` or add that directory to `PYTHONPATH`. Construct `Solver(library)` and use `solve_problem(problem, limit)` with a typed `Problem`, `solve(mapping, limit)` with a dynamic mapping, or `solve_json(problem_bytes, limit)` for raw bytes. The typed classes include `AllDifferent`, `NotEqualOffset`, `PreferValue`, `CountValue`, and `ResourceCapacity`, using tuple fields and exact integer bounds.
+
+```python
+from orchestrata import PreferValue, Problem, Solver, Variable
+
+solver = Solver("/absolute/path/to/liborchestrata_ffi.so")
+problem = Problem(
+    variables=(Variable("job", (0, 1)),),
+    constraints=(PreferValue(variable=0, value=1, soft_weight=1),),
+)
+solution = solver.solve_problem(problem, max_evaluations=2)
+print(solution.values if solution is not None else "No feasible assignment")
+```
+
+This prints `(1,)`. A typed solution exposes `values`, `score.hard`, `score.soft`, and `evaluated`. An explicitly proven infeasible request returns `None`. An exceeded evaluation limit raises `SolveError` with status 2. A malformed typed reply raises `ResultFormatError`; local type or range errors may raise `TypeError` or `ValueError` before execution. The two existing interfaces keep their original behavior.
 
 ```sh
 PYTHONPATH="$PWD/sdks/python" ORCHESTRATA_LIBRARY="$library" \

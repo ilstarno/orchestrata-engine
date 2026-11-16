@@ -58,3 +58,7 @@ path = "solver/precedence.rs"
 [[test]]
 name = "no_overlap"
 path = "solver/no_overlap.rs"
+
+[[test]]
+name = "route_construction"
+path = "solver/route_construction.rs"
