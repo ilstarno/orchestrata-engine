@@ -41,7 +41,11 @@ public sealed class Solver : IDisposable
     }
 
     /// <summary>Returns the complete UTF-8 solver response as a managed string.</summary>
-    public unsafe string SolveJson(ReadOnlySpan<byte> problem, ulong maxEvaluations)
+    public string SolveJson(ReadOnlySpan<byte> problem, ulong maxEvaluations) =>
+        InvokeNative(problem, maxEvaluations)
+            ?? throw new InvalidOperationException("Native solver returned no response.");
+
+    private unsafe string? InvokeNative(ReadOnlySpan<byte> problem, ulong maxEvaluations)
     {
         lock (gate)
         {
@@ -56,8 +60,7 @@ public sealed class Solver : IDisposable
                         throw new SolveException(status);
                 }
 
-                return Marshal.PtrToStringUTF8(result)
-                    ?? throw new InvalidOperationException("Native solver returned no response.");
+                return Marshal.PtrToStringUTF8(result);
             }
             finally
             {
@@ -68,6 +71,17 @@ public sealed class Solver : IDisposable
 
     public string SolveJson(string problem, ulong maxEvaluations) =>
         SolveJson(Encoding.UTF8.GetBytes(problem), maxEvaluations);
+
+    /// <summary>Runs exact search and validates the native response without losing integer precision.</summary>
+    /// <exception cref="ArgumentException">The managed request has an invalid shape.</exception>
+    /// <exception cref="SolveException">The native engine rejected or could not solve the request.</exception>
+    /// <exception cref="SolveResponseException">The native response could not be validated.</exception>
+    public SolveOutcome Solve(Problem problem, ulong maxEvaluations)
+    {
+        PreparedProblem request = ProblemEncoder.Encode(problem);
+        string response = InvokeNative(request.Utf8, maxEvaluations) ?? throw new SolveResponseException();
+        return ResultDecoder.Decode(response, request.Domains, maxEvaluations);
+    }
 
     public void Dispose()
     {
