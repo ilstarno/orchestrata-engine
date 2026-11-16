@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use super::count_value_tier::CountValueTier;
-use crate::{ResourceLimit, ResourceLoad};
+use crate::{ResourceLimit, ResourceLoad, ScheduledInterval};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
@@ -33,6 +33,8 @@ pub enum Constraint {
         after: usize,
         min_gap: u64,
     },
+    /// Requires disjoint half-open intervals on one exclusive resource.
+    NoOverlap { intervals: Vec<ScheduledInterval> },
     /// Limits the sum of assigned item loads per resource in one unit/dimension.
     /// The hard penalty is the total amount above the resource limits.
     ResourceCapacity {

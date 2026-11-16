@@ -18,6 +18,8 @@ pub mod incremental_scorer;
 pub mod local_search;
 #[path = "move_trial.rs"]
 pub mod move_trial;
+#[path = "no_overlap.rs"]
+mod no_overlap;
 #[path = "precedence_shortfall.rs"]
 mod precedence_shortfall;
 #[path = "problem.rs"]
@@ -34,6 +36,8 @@ mod resource_capacity_validation;
 pub mod resource_limit;
 #[path = "resource_load.rs"]
 pub mod resource_load;
+#[path = "scheduled_interval.rs"]
+pub mod scheduled_interval;
 #[path = "score.rs"]
 pub mod score;
 #[path = "scoring.rs"]

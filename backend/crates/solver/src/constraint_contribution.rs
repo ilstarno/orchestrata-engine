@@ -65,6 +65,9 @@ pub(super) fn contribution(
         } => {
             result.hard = -shortfall(value_at(*before), value_at(*after), *min_gap);
         }
+        Constraint::NoOverlap { intervals } => {
+            result.hard = super::no_overlap::overlap_score(intervals, value_at)?;
+        }
         Constraint::ResourceCapacity { items, limits } => {
             result.hard = -overload_penalty(items, limits, value_at)?;
         }

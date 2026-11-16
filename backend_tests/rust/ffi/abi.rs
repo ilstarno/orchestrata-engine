@@ -104,3 +104,25 @@ fn v1_dispatches_additive_count_value_json_and_keeps_invalid_status() {
         Err(Status::InvalidProblem as i32)
     );
 }
+
+#[test]
+fn v1_accepts_exclusive_intervals_and_rejects_malformed_members() {
+    let json = br#"{
+        "variables":[{"name":"a","domain":[0]},{"name":"b","domain":[1,2]}],
+        "constraints":[{"kind":"no_overlap","intervals":[{"start":0,"duration":2},{"start":1,"duration":1}]}]
+    }"#;
+    let result: serde_json::Value = serde_json::from_str(&invoke(json, 2).unwrap()).unwrap();
+    assert_eq!(result["solution"]["values"], serde_json::json!([0, 2]));
+    let mut model: serde_json::Value = serde_json::from_slice(json).unwrap();
+    for member in [
+        serde_json::json!({"start":1,"duration":-1}),
+        serde_json::json!({"start":0,"duration":0}),
+        serde_json::json!({"start":1,"duration":1,"units":"minutes"}),
+    ] {
+        model["constraints"][0]["intervals"][1] = member;
+        assert_eq!(
+            invoke(&serde_json::to_vec(&model).unwrap(), 2),
+            Err(Status::InvalidProblem as i32)
+        );
+    }
+}

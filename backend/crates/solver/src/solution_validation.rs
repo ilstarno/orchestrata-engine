@@ -85,6 +85,22 @@ pub fn verify_solution(
                     return Err(SolutionValidationError::HardConstraintViolation(index));
                 }
             }
+            Constraint::NoOverlap { intervals } => {
+                // Verify separately from the solver's start-ordered overlap scan
+                // and the scorer's sweep. Empty intervals occupy no time.
+                let mut ordered_by_end: Vec<_> = intervals
+                    .iter()
+                    .filter(|interval| interval.duration > 0)
+                    .map(|interval| {
+                        let start = i128::from(values[interval.start]);
+                        (start + i128::from(interval.duration), start)
+                    })
+                    .collect();
+                ordered_by_end.sort_unstable();
+                if ordered_by_end.windows(2).any(|pair| pair[0].0 > pair[1].1) {
+                    return Err(SolutionValidationError::HardConstraintViolation(index));
+                }
+            }
             Constraint::ResourceCapacity { items, limits } => {
                 if !verify_capacity(items, limits, values) {
                     return Err(SolutionValidationError::HardConstraintViolation(index));

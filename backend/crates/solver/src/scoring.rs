@@ -79,6 +79,14 @@ pub fn score(problem: &Problem, values: &[i64]) -> Result<Score, Error> {
                 let hard = i128::from(result.hard) - penalty;
                 result.hard = i64::try_from(hard).map_err(|_| Error::ScoreOverflow)?;
             }
+            Constraint::NoOverlap { intervals } => {
+                let penalty = super::no_overlap::overlap_score(intervals, |i| values[i])?;
+                let penalty = i64::try_from(penalty).map_err(|_| Error::ScoreOverflow)?;
+                result.hard = result
+                    .hard
+                    .checked_add(penalty)
+                    .ok_or(Error::ScoreOverflow)?;
+            }
             Constraint::ResourceCapacity { items, limits } => {
                 let penalty = overload_penalty(items, limits, |index| values[index])?;
                 let hard = i128::from(result.hard)

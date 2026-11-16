@@ -32,6 +32,9 @@ impl<'problem> CompiledProblem<'problem> {
                     record(*before);
                     record(*after);
                 }
+                Constraint::NoOverlap { intervals } => {
+                    intervals.iter().for_each(|entry| record(entry.start));
+                }
                 Constraint::ResourceCapacity { items, .. } => {
                     items.iter().for_each(|item| record(item.variable));
                 }
