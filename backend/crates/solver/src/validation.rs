@@ -80,6 +80,15 @@ pub fn validate(problem: &Problem) -> Result<(), Error> {
                 }
                 continue;
             }
+            Constraint::NoOverlap { intervals } => {
+                super::no_overlap::validate_intervals(intervals, problem.variables.len()).map_err(
+                    |reason| Error::InvalidNoOverlap {
+                        constraint: constraint_index,
+                        reason,
+                    },
+                )?;
+                continue;
+            }
             Constraint::ResourceCapacity { items, limits } => {
                 validate_resource_capacity(problem, items, limits)?;
                 continue;

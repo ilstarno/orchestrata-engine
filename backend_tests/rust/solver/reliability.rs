@@ -124,6 +124,19 @@ fn feasible_soft_score(problem: &Problem, values: &[i64]) -> Option<i64> {
                     return None;
                 }
             }
+            Constraint::NoOverlap { intervals } => {
+                for (index, left) in intervals.iter().enumerate() {
+                    let start = i128::from(values[left.start]);
+                    let end = start + i128::from(left.duration);
+                    for right in &intervals[index + 1..] {
+                        let other_start = i128::from(values[right.start]);
+                        let other_end = other_start + i128::from(right.duration);
+                        if start.max(other_start) < end.min(other_end) {
+                            return None;
+                        }
+                    }
+                }
+            }
             Constraint::ResourceCapacity { items, limits } => {
                 for limit in limits {
                     let load: u128 = items

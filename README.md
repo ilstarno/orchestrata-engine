@@ -59,3 +59,39 @@ a new ABI version. Use a native library that includes this rule; older
 libraries reject it. The public Rust enums have new variants, so downstream
 exhaustive matches need updating when upgrading. Typed SDK builders require
 separate updates unless they accept raw problem JSON.
+
+## Reserve one exclusive resource over time
+
+Use `no_overlap` for jobs sharing one piece of equipment or one room.
+Give every job a distinct start variable and a fixed unsigned 64-bit
+duration. Start domains use signed 64-bit values. Choose the same time unit
+for all starts and durations. For example, a tool can be booked again at
+minute 30 if its previous booking started at minute 0 and lasted 30 minutes:
+
+```json
+{
+  "variables": [
+    {"name": "first_booking", "domain": [0]},
+    {"name": "next_booking", "domain": [20, 30]}
+  ],
+  "constraints": [
+    {"kind": "no_overlap", "intervals": [
+      {"start": 0, "duration": 30},
+      {"start": 1, "duration": 15}
+    ]}
+  ]
+}
+```
+
+This example has the solution `[0, 30]`. The `start` field is a zero-based
+variable index, not a timestamp. Each rule needs at least two distinct
+start references; zero-duration bookings occupy no time. A booking ending
+exactly when another starts does not conflict. Internally, ends are computed
+without truncation even beyond the signed 64-bit range. Diagnostic hard score
+subtracts the shared time for each overlapping pair and reports an error if
+the final score cannot fit in a signed 64-bit result. The exact solve still
+requires a search budget and does not choose the room or equipment for you.
+
+This is an additional raw native V1 JSON constraint. Use a library build
+containing the rule; older builds do not recognize it. Typed SDK builders
+are not extended by this change.

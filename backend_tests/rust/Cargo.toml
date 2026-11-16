@@ -54,3 +54,7 @@ path = "solver/resource_capacity.rs"
 [[test]]
 name = "precedence"
 path = "solver/precedence.rs"
+
+[[test]]
+name = "no_overlap"
+path = "solver/no_overlap.rs"

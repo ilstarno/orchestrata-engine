@@ -83,6 +83,9 @@ fn violates_hard_rule(constraint: &Constraint, values: &[i64]) -> bool {
             after,
             min_gap,
         } => shortfall(values[*before], values[*after], *min_gap) != 0,
+        Constraint::NoOverlap { intervals } => {
+            super::no_overlap::has_overlap(intervals, |i| values[i])
+        }
         Constraint::ResourceCapacity { items, limits } => {
             exceeds_capacity(items, limits, |index| values[index])
         }

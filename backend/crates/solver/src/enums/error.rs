@@ -13,6 +13,10 @@ pub enum Error {
         constraint: usize,
         reason: super::precedence_error::PrecedenceError,
     },
+    InvalidNoOverlap {
+        constraint: usize,
+        reason: super::no_overlap_error::NoOverlapError,
+    },
     InvalidResourceCapacity(ResourceCapacityError),
     TooManyAssignments,
     ScoreOverflow,
