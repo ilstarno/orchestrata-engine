@@ -8,7 +8,6 @@ package orchestrata
 import "C"
 
 import (
-	"encoding/json"
 	"fmt"
 	"unsafe"
 )
@@ -88,11 +87,5 @@ func Solve(problem []byte, maxEvaluations uint64) (*Solution, error) {
 	if err != nil {
 		return nil, err
 	}
-	var document struct {
-		Solution *Solution `json:"solution"`
-	}
-	if err := json.Unmarshal(response, &document); err != nil {
-		return nil, fmt.Errorf("decode Orchestrata response: %w", err)
-	}
-	return document.Solution, nil
+	return DecodeResultV1(response)
 }

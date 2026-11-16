@@ -10,13 +10,16 @@ from orchestrata_models import (
     AllDifferent as AllDifferent,
     Constraint as Constraint,
     CountValue as CountValue,
+    NoOverlap as NoOverlap,
     NotEqualOffset as NotEqualOffset,
+    Precedence as Precedence,
     PreferValue as PreferValue,
     Problem as Problem,
     ResourceCapacity as ResourceCapacity,
     ResourceLimit as ResourceLimit,
     ResourceLoad as ResourceLoad,
     ResultFormatError as ResultFormatError,
+    ScheduledInterval as ScheduledInterval,
     Score as Score,
     Solution as Solution,
     Variable as Variable,
@@ -87,7 +90,6 @@ class Solver:
         """Return an optimal solution or None if exhaustive search proved infeasibility."""
         encoded = json.dumps(dict(problem), allow_nan=False).encode("utf-8")
         return json.loads(self.solve_json(encoded, max_evaluations))["solution"]
-
 
     def solve_problem(self, problem: Problem, max_evaluations: int) -> Solution | None:
         """Solve an immutable typed model without changing the ABI or raw APIs."""

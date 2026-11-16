@@ -26,7 +26,7 @@ Pass a UTF-8 JSON problem and a maximum number of evaluations. A minimal problem
 
 The caller borrows input for one synchronous call. Native callers release each output exactly once with `orchestrata_free_json_v1`; language bindings do this before returning a managed copy. The library has no process-wide solver state. Run long calls off a request or event-loop thread.
 
-Signed domain and score values are 64-bit; evaluation counts are unsigned 64-bit. In Node.js give inputs as a JSON string or Buffer, set the limit with a `bigint` (for example, `1000n`), and decode the returned JSON with an integer-preserving parser. Standard `JSON.parse`/Number is not lossless for every result. Java passes a `long` limit as an unsigned bit pattern. PHP accepts nonnegative, signed PHP integers for the limit; its practical maximum is `PHP_INT_MAX`. C#, Java, Node.js, and PHP return raw JSON rather than imposing a numeric representation. Python and Go also provide lossless typed convenience methods.
+Signed domain and score values are 64-bit; evaluation counts are unsigned 64-bit. The typed Node.js API uses `bigint` for 64-bit values and handles lossless wire encoding and decoding. Its legacy raw API requires JSON text or a Buffer, a `bigint` limit, and caller-owned lossless decoding. Standard `JSON.parse`/Number is not lossless for every result. Java passes a `long` limit as an unsigned bit pattern. PHP accepts nonnegative, signed PHP integers for the limit; its practical maximum is `PHP_INT_MAX`. C#, Java, and PHP return raw JSON rather than imposing a numeric representation. Node.js, Python, and Go provide lossless typed functions for all seven finite-domain rules.
 
 ## Use and smoke test
 
@@ -38,7 +38,7 @@ library="$lib/liborchestrata_ffi.so"
 include="$PWD/backend/crates/ffi/include"
 ```
 
-**Python 3.10+.** Install from `sdks/python` or add that directory to `PYTHONPATH`. Construct `Solver(library)` and use `solve_problem(problem, limit)` with a typed `Problem`, `solve(mapping, limit)` with a dynamic mapping, or `solve_json(problem_bytes, limit)` for raw bytes. The typed classes include `AllDifferent`, `NotEqualOffset`, `PreferValue`, `CountValue`, and `ResourceCapacity`, using tuple fields and exact integer bounds.
+**Python 3.10+.** Install from `sdks/python` or add that directory to `PYTHONPATH`. Construct `Solver(library)` and use `solve_problem(problem, limit)` with a typed `Problem`, `solve(mapping, limit)` with a dynamic mapping, or `solve_json(problem_bytes, limit)` for raw bytes. The typed classes include `AllDifferent`, `NotEqualOffset`, `PreferValue`, `CountValue`, `Precedence`, `NoOverlap`, and `ResourceCapacity`, using tuple fields and exact integer bounds.
 
 ```python
 from orchestrata import PreferValue, Problem, Solver, Variable
@@ -59,18 +59,45 @@ PYTHONPATH="$PWD/sdks/python" ORCHESTRATA_LIBRARY="$library" \
   python -m unittest discover -s backend_tests/python -v
 ```
 
-**Go with cgo.** Use the module in `sdks/go` and call `Solve(problemJSON, limit)` or `SolveJSON(problemJSON, limit)`. Point the C compiler at the header and the linker at the native library.
+**Go with cgo.** Use the [Go package](go/README.md) and call `SolveProblem(problem, limit)` for a fully typed request and result, or `Solve(problemJSON, limit)` for a raw request with a validated result. `SolveJSON` preserves the raw interface. Point the C compiler at the header and the linker at the native library.
 
 ```sh
 (cd backend_tests/go && CGO_ENABLED=1 CGO_CFLAGS="-I$include" CGO_LDFLAGS="-L$lib" \
   LD_LIBRARY_PATH="$lib" go test -v ./...)
 ```
 
-**Node.js.** Use a Node release with Node-API bigint support and install the platform C toolchain and `node-gyp`. Call `solveJson(problemJson, limitBigInt)`. The dynamic loader needs the native library on its search path.
+**Node.js.** Use a Node release with Node-API bigint support and install the platform C toolchain and `node-gyp`. The dynamic loader needs the native library on its search path. The typed API also requires `JSON.rawJSON` and the `JSON.parse` reviver's `context.source` (verified on Node 24).
+
+```js
+const { solve, SolveError } = require('./sdks/node');
+
+try {
+  const result = solve({
+    variables: [{ name: 'job', domain: [0n, 9007199254740993n] }],
+    constraints: [{ kind: 'prefer_value', variable: 0, value: 9007199254740993n, softWeight: 1n }],
+  }, 2n);
+  if (result.kind === 'solved') console.log(result.solution.values[0]);
+} catch (error) {
+  if (error instanceof SolveError) console.error(error.code);
+  else throw error;
+}
+```
+
+`solve(problem, maxEvaluations)` takes a typed object. Constraint kinds match the native names, with camelCase field names such as `hardWeight` and `minGap`. Domain values, offsets, durations, resource IDs and loads, weights, scores and the evaluation limit/count use `bigint`. Variable indices and scope counts use safe nonnegative `number` values. The result is either `{ kind: 'solved', solution }` or `{ kind: 'infeasible' }` for a proven infeasible problem. All numbers in the returned solution are `bigint`. Unknown input fields and malformed result data are rejected. The typed decoder expects the compact V1 output emitted by the native library and rejects duplicate fields or added whitespace.
+
+Typed calls throw `SolveError` with one of these codes:
+
+- `invalid_input`: invalid request shape, scalar range, or engine problem definition.
+- `search_limit_exceeded`: not enough evaluations to search the full space; not an infeasibility result.
+- `execution_failed`: the native call failed, for example because the winning score cannot fit in 64 bits.
+- `invalid_response`: the native result did not match the expected result contract.
+- `unsupported_runtime`: the Node runtime cannot encode and decode exact 64-bit integers.
+
+`nativeStatus` is present when the native binding supplied a numeric status. `solveJson(problemJson, limitBigInt)` remains unchanged for callers handling raw JSON.
 
 ```sh
 (cd sdks/node && ORCHESTRATA_LIB_DIR="$lib" npm run build)
-LD_LIBRARY_PATH="$lib" node --test backend_tests/node/native.test.js
+LD_LIBRARY_PATH="$lib" node --test backend_tests/node/*.test.js
 ```
 
 **.NET 8.** Reference `sdks/csharp/Orchestrata.csproj`. Construct `Solver(library)`, call `SolveJson(problemJson, limit)`, and dispose it after use.

@@ -65,7 +65,34 @@ class ResourceCapacity:
     limits: tuple[ResourceLimit, ...]
 
 
-Constraint: TypeAlias = AllDifferent | NotEqualOffset | PreferValue | CountValue | ResourceCapacity
+@dataclass(frozen=True, slots=True)
+class Precedence:
+    """Require the after start to be at least min_gap units after before."""
+
+    before: int
+    after: int
+    min_gap: int
+
+
+@dataclass(frozen=True, slots=True)
+class ScheduledInterval:
+    """A start-variable index and duration in the model's time unit."""
+
+    start: int
+    duration: int
+
+
+@dataclass(frozen=True, slots=True)
+class NoOverlap:
+    """Share one exclusive resource among half-open fixed-duration intervals."""
+
+    intervals: tuple[ScheduledInterval, ...]
+
+
+Constraint: TypeAlias = (
+    AllDifferent | NotEqualOffset | PreferValue | CountValue | ResourceCapacity
+    | Precedence | NoOverlap
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -144,6 +171,26 @@ def _encode_resource_capacity(value: ResourceCapacity, count: int) -> dict[str, 
     return {"kind": "resource_capacity", "items": items, "limits": limits}
 
 
+def _encode_no_overlap(value: NoOverlap, count: int) -> dict[str, object]:
+    intervals = _sequence(value.intervals, "intervals")
+    if len(intervals) < 2:
+        raise ValueError("no_overlap requires at least two intervals")
+    seen: set[int] = set()
+    encoded: list[dict[str, int]] = []
+    for interval in intervals:
+        if not isinstance(interval, ScheduledInterval):
+            raise TypeError("intervals must contain ScheduledInterval values")
+        start = _index(interval.start, count)
+        if start in seen:
+            raise ValueError("no_overlap start variables must be distinct")
+        seen.add(start)
+        encoded.append({
+            "start": start,
+            "duration": _integer(interval.duration, 0, _U64_MAX, "duration"),
+        })
+    return {"kind": "no_overlap", "intervals": encoded}
+
+
 def _encode_constraint(value: object, count: int) -> dict[str, object]:
     if isinstance(value, AllDifferent):
         return {
@@ -183,6 +230,19 @@ def _encode_constraint(value: object, count: int) -> dict[str, object]:
         }
     if isinstance(value, ResourceCapacity):
         return _encode_resource_capacity(value, count)
+    if isinstance(value, Precedence):
+        before = _index(value.before, count)
+        after = _index(value.after, count)
+        if before == after:
+            raise ValueError("precedence before and after variables must be distinct")
+        return {
+            "kind": "precedence",
+            "before": before,
+            "after": after,
+            "min_gap": _integer(value.min_gap, 0, _U64_MAX, "min_gap"),
+        }
+    if isinstance(value, NoOverlap):
+        return _encode_no_overlap(value, count)
     raise TypeError("unsupported constraint value")
 
 
