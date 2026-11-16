@@ -62,3 +62,7 @@ path = "solver/no_overlap.rs"
 [[test]]
 name = "route_construction"
 path = "solver/route_construction.rs"
+
+[[test]]
+name = "lead_ownership"
+path = "solver/lead_ownership.rs"
