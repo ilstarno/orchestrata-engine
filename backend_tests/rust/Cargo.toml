@@ -70,3 +70,7 @@ path = "solver/lead_ownership.rs"
 [[test]]
 name = "shortest_paths"
 path = "solver/shortest_paths.rs"
+
+[[test]]
+name = "interview_scheduling"
+path = "solver/interview_scheduling.rs"

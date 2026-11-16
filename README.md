@@ -112,3 +112,10 @@ or finishing with unassigned shipments is not proof of infeasibility, and a
 complete pass does not prove optimality. Oversized inputs and an oversized
 budget return errors separately from invalid routing problems. This constructor
 is a Rust API; the native V1 JSON solve endpoint and SDKs are unchanged by it.
+
+## Schedule interviews in Rust
+
+Propose slots and panels for interviews already approved for scheduling. The
+solver keeps confirmed appointments fixed, avoids panelist conflicts, and
+explains meetings it holds. It does not evaluate applicants or write to
+calendars. See [the scheduling guide](docs/interview-scheduling.md).
