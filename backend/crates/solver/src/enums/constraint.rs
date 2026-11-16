@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use super::count_value_tier::CountValueTier;
+use crate::{ResourceLimit, ResourceLoad};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
@@ -24,6 +25,12 @@ pub enum Constraint {
         right: usize,
         offset: i64,
         hard_weight: i64,
+    },
+    /// Limits the sum of assigned item loads per resource in one unit/dimension.
+    /// The hard penalty is the total amount above the resource limits.
+    ResourceCapacity {
+        items: Vec<ResourceLoad>,
+        limits: Vec<ResourceLimit>,
     },
     PreferValue {
         variable: usize,

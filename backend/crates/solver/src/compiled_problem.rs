@@ -28,6 +28,9 @@ impl<'problem> CompiledProblem<'problem> {
                     record(*left);
                     record(*right);
                 }
+                Constraint::ResourceCapacity { items, .. } => {
+                    items.iter().for_each(|item| record(item.variable));
+                }
                 Constraint::PreferValue { variable, .. } => record(*variable),
             }
         }
