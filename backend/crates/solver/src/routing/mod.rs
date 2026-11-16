@@ -1,7 +1,13 @@
+mod construct_routes;
+mod construction_limits;
+mod construction_simulation;
 mod courier;
 mod courier_mode;
 mod courier_route;
 mod location_id;
+mod route_construction;
+mod route_construction_error;
+mod route_construction_stop;
 mod route_cursor;
 mod route_verification_error;
 mod route_visit;
@@ -13,10 +19,17 @@ mod time_window;
 mod verification;
 mod visit_kind;
 
+pub use construct_routes::construct_routes;
+pub use construction_limits::{
+    MAX_CONSTRUCTION_COURIERS, MAX_CONSTRUCTION_INSERTIONS, MAX_CONSTRUCTION_SHIPMENTS,
+};
 pub use courier::Courier;
 pub use courier_mode::CourierMode;
 pub use courier_route::CourierRoute;
 pub use location_id::LocationId;
+pub use route_construction::RouteConstruction;
+pub use route_construction_error::RouteConstructionError;
+pub use route_construction_stop::RouteConstructionStop;
 pub use route_verification_error::RouteVerificationError;
 pub use route_visit::RouteVisit;
 pub use routing_problem::RoutingProblem;

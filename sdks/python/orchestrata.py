@@ -6,6 +6,24 @@ from os import PathLike
 from pathlib import Path
 from typing import Any, Mapping
 
+from orchestrata_models import (
+    AllDifferent as AllDifferent,
+    Constraint as Constraint,
+    CountValue as CountValue,
+    NotEqualOffset as NotEqualOffset,
+    PreferValue as PreferValue,
+    Problem as Problem,
+    ResourceCapacity as ResourceCapacity,
+    ResourceLimit as ResourceLimit,
+    ResourceLoad as ResourceLoad,
+    ResultFormatError as ResultFormatError,
+    Score as Score,
+    Solution as Solution,
+    Variable as Variable,
+    decode_result_v1 as decode_result_v1,
+    encode_problem_v1 as encode_problem_v1,
+)
+
 ABI_VERSION = 1
 MAX_EVALUATIONS = 2**64 - 1
 
@@ -69,3 +87,14 @@ class Solver:
         """Return an optimal solution or None if exhaustive search proved infeasibility."""
         encoded = json.dumps(dict(problem), allow_nan=False).encode("utf-8")
         return json.loads(self.solve_json(encoded, max_evaluations))["solution"]
+
+
+    def solve_problem(self, problem: Problem, max_evaluations: int) -> Solution | None:
+        """Solve an immutable typed model without changing the ABI or raw APIs."""
+        result = decode_result_v1(self.solve_json(encode_problem_v1(problem), max_evaluations))
+        if result is not None:
+            if len(result.values) != len(problem.variables):
+                raise ResultFormatError("result value count does not match the problem")
+            if any(value not in variable.domain for variable, value in zip(problem.variables, result.values)):
+                raise ResultFormatError("result value is outside its variable domain")
+        return result

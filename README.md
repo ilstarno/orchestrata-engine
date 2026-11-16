@@ -21,7 +21,7 @@ Build the native library with stable Rust. On Linux, run the following from the 
     print(solver.solve(problem, 2)["values"])
     PY
 
-This prints `[1]`. Exact search either returns a verified optimum, proves the submitted model infeasible, or rejects a search that exceeds the evaluation budget. Bounded local search can return a feasible plan but cannot prove optimality or infeasibility. The Rust API also compares verified plans and checks supplied pickup-and-delivery routes; it does not calculate travel times or construct routes.
+This prints `[1]`. Exact search either returns a verified optimum, proves the submitted model infeasible, or rejects a search that exceeds the evaluation budget. Bounded local search can return a feasible plan but cannot prove optimality or infeasibility. The Rust API also compares verified plans and verifies or constructs small pickup-and-delivery routes using caller-supplied travel times.
 
 See the [SDK guide](sdks/README.md) for the library name on your platform, native ABI details, and other languages. See [backend tests](backend_tests/README.md) for verification commands.
 
@@ -95,3 +95,20 @@ requires a search budget and does not choose the room or equipment for you.
 This is an additional raw native V1 JSON constraint. Use a library build
 containing the rule; older builds do not recognize it. Typed SDK builders
 are not extended by this change.
+
+
+## Construct small pickup-and-delivery routes in Rust
+
+`routing::construct_routes` attempts deterministic pickup/delivery insertion
+for at most 16 couriers and 32 shipments. Set a budget of at most 20,000
+candidate insertions. The caller supplies a repeatable, static travel-time
+lookup by courier mode and ordered pair of locations; an unknown leg is not
+used. This function does not fetch maps, calculate travel times, or use a
+network service.
+
+The result includes verified assigned routes, unassigned shipment indices, the
+number of candidate insertions tried, and a stop reason. Reaching the budget
+or finishing with unassigned shipments is not proof of infeasibility, and a
+complete pass does not prove optimality. Oversized inputs and an oversized
+budget return errors separately from invalid routing problems. This constructor
+is a Rust API; the native V1 JSON solve endpoint and SDKs are unchanged by it.
