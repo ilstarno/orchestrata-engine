@@ -42,3 +42,7 @@ path = "solver/solution_comparison.rs"
 [[test]]
 name = "solver"
 path = "solver/unit.rs"
+
+[[test]]
+name = "count_value"
+path = "solver/count_value.rs"

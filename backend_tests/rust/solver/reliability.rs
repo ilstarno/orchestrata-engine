@@ -1,6 +1,6 @@
 use orchestrata_solver::{
-    Constraint, Error, Problem, Score, Solution, SolutionValidationError, Variable, solve,
-    verify_solution,
+    Constraint, CountValueTier, Error, Problem, Score, Solution, SolutionValidationError, Variable,
+    solve, verify_solution,
 };
 
 fn variable(name: &str, domain: &[i64]) -> Variable {
@@ -71,6 +71,30 @@ fn feasible_soft_score(problem: &Problem, values: &[i64]) -> Option<i64> {
     let mut soft = 0;
     for constraint in &problem.constraints {
         match constraint {
+            Constraint::CountValue {
+                variables,
+                value,
+                min,
+                max,
+                weight,
+                tier,
+            } => {
+                let hits = variables
+                    .iter()
+                    .map(|&index| values[index])
+                    .filter(|item| item == value)
+                    .count();
+                let deviation = if hits < *min {
+                    *min - hits
+                } else {
+                    hits.saturating_sub(*max)
+                };
+                if *tier == CountValueTier::Hard && deviation != 0 {
+                    return None;
+                } else if *tier == CountValueTier::Soft {
+                    soft -= i64::try_from(deviation).unwrap() * *weight;
+                }
+            }
             Constraint::AllDifferent { variables, .. } => {
                 let distinct = variables
                     .iter()
@@ -303,4 +327,22 @@ fn dominated_feasible_candidate_with_overflowing_soft_score_does_not_abort_searc
 
     assert_eq!(best.values, [1]);
     assert_eq!(best.score, Score { hard: 0, soft: 0 });
+}
+
+#[test]
+fn exact_coverage_matches_the_independent_exhaustive_oracle() {
+    let mut problem = dispatch_problem();
+    problem.constraints.push(Constraint::CountValue {
+        variables: vec![0, 1, 2],
+        value: 8,
+        min: 0,
+        max: 0,
+        weight: 4,
+        tier: CountValueTier::Soft,
+    });
+    let result = solve(&problem, 8).unwrap().unwrap();
+    assert_eq!(
+        Some((result.values, result.score)),
+        exhaustive_oracle(&problem)
+    );
 }

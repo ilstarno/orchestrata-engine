@@ -1,6 +1,8 @@
 use std::collections::HashSet;
 
-use crate::{Constraint, Problem, Score, Solution, SolutionValidationError, validate};
+use crate::{
+    Constraint, CountValueTier, Problem, Score, Solution, SolutionValidationError, validate,
+};
 
 /// Checks feasibility and recomputes the score without using the search scorer.
 ///
@@ -24,6 +26,35 @@ pub fn verify_solution(
     let mut soft_penalty = 0_i128;
     for (index, constraint) in problem.constraints.iter().enumerate() {
         match constraint {
+            Constraint::CountValue {
+                variables,
+                value,
+                min,
+                max,
+                weight,
+                tier,
+            } => {
+                let mut count = 0;
+                for &variable in variables {
+                    if values[variable] == *value {
+                        count += 1;
+                    }
+                }
+                if !(*min..=*max).contains(&count) {
+                    if *tier == CountValueTier::Hard {
+                        return Err(SolutionValidationError::HardConstraintViolation(index));
+                    }
+                    let difference = if count < *min {
+                        *min - count
+                    } else {
+                        count - *max
+                    };
+                    let penalty = (difference as i128) * i128::from(*weight);
+                    soft_penalty = soft_penalty
+                        .saturating_add(penalty)
+                        .min(-i128::from(i64::MIN) + 1);
+                }
+            }
             Constraint::AllDifferent { variables, .. } => {
                 let mut unique = HashSet::with_capacity(variables.len());
                 if !variables

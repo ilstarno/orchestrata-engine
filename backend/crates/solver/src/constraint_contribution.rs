@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
-use super::wide_score::WideScore;
-use crate::{Constraint, Error};
+use super::{count_value_distance::distance, wide_score::WideScore};
+use crate::{Constraint, CountValueTier, Error};
 
 pub(super) fn contribution(
     constraint: &Constraint,
@@ -10,6 +10,24 @@ pub(super) fn contribution(
     let mut result = WideScore::default();
 
     match constraint {
+        Constraint::CountValue {
+            variables,
+            value,
+            min,
+            max,
+            weight,
+            tier,
+        } => {
+            let count = variables
+                .iter()
+                .filter(|&&index| value_at(index) == *value)
+                .count();
+            let penalty = -(distance(count, *min, *max) as i128) * i128::from(*weight);
+            match tier {
+                CountValueTier::Hard => result.hard = penalty,
+                CountValueTier::Soft => result.soft = penalty,
+            }
+        }
         Constraint::AllDifferent {
             variables,
             hard_weight,

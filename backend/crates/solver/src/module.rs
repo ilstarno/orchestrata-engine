@@ -8,6 +8,8 @@ pub mod compare_solutions;
 pub mod compiled_problem;
 #[path = "constraint_contribution.rs"]
 mod constraint_contribution;
+#[path = "count_value_distance.rs"]
+mod count_value_distance;
 #[path = "enums/module.rs"]
 pub mod enums;
 #[path = "incremental_scorer.rs"]
