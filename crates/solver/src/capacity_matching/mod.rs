@@ -2,6 +2,7 @@ mod assignment;
 mod error;
 mod problem;
 mod solve;
+pub mod weighted;
 
 pub use assignment::CapacityAssignment;
 pub use error::CapacityMatchError;

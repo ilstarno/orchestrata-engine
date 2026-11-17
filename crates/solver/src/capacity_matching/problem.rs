@@ -14,27 +14,39 @@ pub struct CapacityMatchProblem {
 
 impl CapacityMatchProblem {
     pub(super) fn validate(&self) -> Result<(), CapacityMatchError> {
-        if self.worker_capacities.len() > CAPACITY_MATCH_MAX_RECORDS
-            || self.eligible_workers_by_job.len() > CAPACITY_MATCH_MAX_RECORDS
-        {
-            return Err(CapacityMatchError::TooManyRecords);
-        }
-        for (worker, &cap) in self.worker_capacities.iter().enumerate() {
-            if cap > CAPACITY_MATCH_MAX_RECORDS {
-                return Err(CapacityMatchError::InvalidCapacity { worker });
-            }
-        }
-        for (job, eligible) in self.eligible_workers_by_job.iter().enumerate() {
-            let mut seen = [false; CAPACITY_MATCH_MAX_RECORDS];
-            for &worker in eligible {
-                if worker >= self.worker_capacities.len() {
-                    return Err(CapacityMatchError::UnknownWorker { job, worker });
-                }
-                if std::mem::replace(&mut seen[worker], true) {
-                    return Err(CapacityMatchError::RepeatedWorker { job, worker });
-                }
-            }
-        }
-        Ok(())
+        validate_inputs(
+            &self.worker_capacities,
+            self.eligible_workers_by_job.len(),
+            |job| self.eligible_workers_by_job[job].iter().copied(),
+        )
     }
+}
+
+pub(super) fn validate_inputs<I: Iterator<Item = usize>>(
+    worker_capacities: &[usize],
+    job_count: usize,
+    eligible_workers: impl Fn(usize) -> I,
+) -> Result<(), CapacityMatchError> {
+    if worker_capacities.len() > CAPACITY_MATCH_MAX_RECORDS
+        || job_count > CAPACITY_MATCH_MAX_RECORDS
+    {
+        return Err(CapacityMatchError::TooManyRecords);
+    }
+    for (worker, &cap) in worker_capacities.iter().enumerate() {
+        if cap > CAPACITY_MATCH_MAX_RECORDS {
+            return Err(CapacityMatchError::InvalidCapacity { worker });
+        }
+    }
+    for job in 0..job_count {
+        let mut seen = [false; CAPACITY_MATCH_MAX_RECORDS];
+        for worker in eligible_workers(job) {
+            if worker >= worker_capacities.len() {
+                return Err(CapacityMatchError::UnknownWorker { job, worker });
+            }
+            if std::mem::replace(&mut seen[worker], true) {
+                return Err(CapacityMatchError::RepeatedWorker { job, worker });
+            }
+        }
+    }
+    Ok(())
 }
