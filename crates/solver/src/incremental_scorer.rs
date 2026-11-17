@@ -115,4 +115,50 @@ impl<'compiled> IncrementalScorer<'compiled> {
             replacements,
         ))
     }
+
+    /// Recalculate the union of constraints under the simultaneous assignment.
+    /// Called only for unequal values accepted by both receiving domains.
+    pub(super) fn improve_swap(&mut self, left: usize, right: usize) -> Result<bool, Error> {
+        let left_value = self.values[left];
+        let right_value = self.values[right];
+        let mut affected = self
+            .compiled
+            .incident_constraints(left)
+            .unwrap_or_default()
+            .to_vec();
+        affected.extend_from_slice(
+            self.compiled
+                .incident_constraints(right)
+                .unwrap_or_default(),
+        );
+        affected.sort_unstable();
+        affected.dedup();
+        let mut total = affected
+            .iter()
+            .fold(self.total, |total, &index| total.remove(self.scores[index]));
+        let mut scores = Vec::with_capacity(affected.len());
+        for &index in &affected {
+            let next = contribution(&self.compiled.problem.constraints[index], |position| {
+                if position == left {
+                    right_value
+                } else if position == right {
+                    left_value
+                } else {
+                    self.values[position]
+                }
+            })?;
+            total = total.add(next)?;
+            scores.push(next);
+        }
+
+        if total <= self.total {
+            return Ok(false);
+        }
+        for (index, score) in affected.into_iter().zip(scores) {
+            self.scores[index] = score;
+        }
+        self.total = total;
+        self.values.swap(left, right);
+        Ok(true)
+    }
 }

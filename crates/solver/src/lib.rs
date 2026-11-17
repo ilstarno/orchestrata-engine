@@ -19,7 +19,7 @@ pub use module::enums::{constraint::Constraint, error::Error};
 pub use module::enums::{count_value_error::CountValueError, count_value_tier::CountValueTier};
 pub use module::incremental_scorer::IncrementalScorer;
 pub use module::input::prepared_problem::PreparedProblem;
-pub use module::local_search::search_locally;
+pub use module::local_search::{search_locally, search_locally_with_swaps};
 pub use module::move_trial::MoveTrial;
 pub use module::problem::Problem;
 pub use module::reference_solver::solve;
