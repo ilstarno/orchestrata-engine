@@ -78,3 +78,7 @@ path = "solver/interview_scheduling.rs"
 [[test]]
 name = "traffic_placement"
 path = "solver/traffic_placement.rs"
+
+[[test]]
+name = "prepared_problem"
+path = "solver/input/prepared_problem.rs"

@@ -7,7 +7,13 @@ use crate::{Error, Problem, Score, Solution, validate, verify_solution};
 /// search space exceeds the evaluation limit, no assignments are evaluated.
 pub fn solve(problem: &Problem, max_evaluations: u64) -> Result<Option<Solution>, Error> {
     validate(problem)?;
+    solve_validated(problem, max_evaluations)
+}
 
+pub(crate) fn solve_validated(
+    problem: &Problem,
+    max_evaluations: u64,
+) -> Result<Option<Solution>, Error> {
     let mut combinations = 1_u64;
     for variable in &problem.variables {
         let size = u64::try_from(variable.domain.len()).map_err(|_| Error::TooManyAssignments)?;

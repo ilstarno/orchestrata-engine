@@ -40,6 +40,16 @@ fn v1_classifies_model_errors_and_never_allocates_on_failure() {
 }
 
 #[test]
+fn v1_counts_distinct_options_in_the_evaluation_budget() {
+    let duplicate_options = br#"{"variables":[{"name":"job","domain":[9,1,9,1]}],"constraints":[]}"#;
+    assert_eq!(
+        invoke(duplicate_options, 2),
+        Ok(r#"{"solution":{"values":[9],"score":{"hard":0,"soft":0},"evaluated":2}}"#.into())
+    );
+    assert_eq!(invoke(duplicate_options, 1), Err(Status::SearchLimit as i32));
+}
+
+#[test]
 fn v1_rejects_null_arguments_and_clears_valid_result_slots() {
     let mut output = ptr::dangling_mut::<c_char>();
     // SAFETY: null requests are rejected before reading; output points to local storage.

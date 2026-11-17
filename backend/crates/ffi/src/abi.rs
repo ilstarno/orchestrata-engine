@@ -4,7 +4,7 @@ use std::{
     ptr, slice,
 };
 
-use orchestrata_solver::{Error, Problem, solve};
+use orchestrata_solver::{Error, PreparedProblem, Problem};
 
 use crate::{
     constants::{ABI_VERSION, MAX_REQUEST_BYTES, MAX_RESULT_BYTES},
@@ -70,7 +70,8 @@ pub unsafe extern "C" fn orchestrata_free_json_v1(result: *mut c_char) {
 
 fn encode_solution(request: &[u8], max_evaluations: u64) -> Result<CString, Status> {
     let problem: Problem = serde_json::from_slice(request).map_err(|_| Status::InvalidProblem)?;
-    let solution = solve(&problem, max_evaluations).map_err(classify_solve_error)?;
+    let prepared = PreparedProblem::prepare(problem).map_err(classify_solve_error)?;
+    let solution = prepared.solve(max_evaluations).map_err(classify_solve_error)?;
     let json =
         serde_json::to_vec(&ResultDocument { solution }).map_err(|_| Status::InternalError)?;
     if json.len() >= MAX_RESULT_BYTES {

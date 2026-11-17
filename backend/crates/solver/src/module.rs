@@ -64,3 +64,5 @@ pub mod validation;
 pub mod variable;
 #[path = "wide_score.rs"]
 mod wide_score;
+#[path = "input/mod.rs"]
+pub(crate) mod input;
