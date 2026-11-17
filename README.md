@@ -25,6 +25,14 @@ This prints `[1]`. Exact search either returns a verified optimum, proves the su
 
 See the [SDK guide](sdks/README.md) for the library name on your platform, native ABI details, and other languages. See [engine tests](backend_tests/README.md) for verification commands.
 
+## Assign jobs within worker capacity
+
+Use the [Rust capacity example](docs/capacity-matching.md) to assign as many
+independent jobs as possible to eligible workers without exceeding their job
+limits.
+
+    cargo run --locked -p orchestrata-solver --example capacity_matching
+
 ## Count assignments to a value
 
 Use `count_value` to say how many selected variables may take one value. For
