@@ -1,6 +1,6 @@
-# Backend tests
+# Engine tests
 
-The Rust suites use a separate, non-publishable test workspace. Production builds use `backend/Cargo.toml` and do not include these targets.
+The Rust suites use a separate, non-publishable test workspace. Production builds use the root Cargo workspace and do not include these targets.
 
     cargo test --manifest-path backend_tests/rust/Cargo.toml --locked
     cargo test --manifest-path backend_tests/rust/Cargo.toml --locked --all-features

@@ -1,4 +1,4 @@
-/backend/target/
+/target/
 /backend_tests/rust/target/
 /backend_tests/csharp/bin/
 /backend_tests/csharp/obj/

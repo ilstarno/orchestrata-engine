@@ -11,8 +11,8 @@ autotests = false
 openapi = ["orchestrata-solver/openapi"]
 
 [dev-dependencies]
-orchestrata-solver = { path = "../../backend/crates/solver" }
-orchestrata-ffi = { path = "../../backend/crates/ffi" }
+orchestrata-solver = { path = "../../crates/solver" }
+orchestrata-ffi = { path = "../../crates/ffi" }
 serde_json = "1"
 
 [[test]]

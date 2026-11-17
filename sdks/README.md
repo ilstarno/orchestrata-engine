@@ -7,10 +7,10 @@ The C#, Java, Python, Node.js, PHP, and Go bindings call the same native library
 From the repository root, with stable Rust and the platform linker:
 
 ```sh
-cargo build --manifest-path backend/Cargo.toml --release -p orchestrata-ffi
+cargo build --release -p orchestrata-ffi
 ```
 
-The C contract is in [orchestrata.h](../backend/crates/ffi/include/orchestrata.h). The release directory is normally `backend/target/release`, containing `liborchestrata_ffi.so` on Linux, `liborchestrata_ffi.dylib` on macOS, or `orchestrata_ffi.dll` on Windows. Use the actual build target directory if Cargo has been configured differently. The bindings reject ABI versions other than 1.
+The C contract is in [orchestrata.h](../crates/ffi/include/orchestrata.h). The release directory is normally `target/release`, containing `liborchestrata_ffi.so` on Linux, `liborchestrata_ffi.dylib` on macOS, or `orchestrata_ffi.dll` on Windows. Use the actual build target directory if Cargo has been configured differently. The bindings reject ABI versions other than 1.
 
 ## Contract
 
@@ -33,9 +33,9 @@ Signed domain and score values are 64-bit; evaluation counts are unsigned 64-bit
 The examples below build from a checkout on Linux, with `lib` pointing to the native library directory:
 
 ```sh
-lib="$PWD/backend/target/release"
+lib="$PWD/target/release"
 library="$lib/liborchestrata_ffi.so"
-include="$PWD/backend/crates/ffi/include"
+include="$PWD/crates/ffi/include"
 ```
 
 **Python 3.10+.** Install from `sdks/python` or add that directory to `PYTHONPATH`. Construct `Solver(library)` and use `solve_problem(problem, limit)` with a typed `Problem`, `solve(mapping, limit)` with a dynamic mapping, or `solve_json(problem_bytes, limit)` for raw bytes. The typed classes include `AllDifferent`, `NotEqualOffset`, `PreferValue`, `CountValue`, and `ResourceCapacity`, using tuple fields and exact integer bounds.
