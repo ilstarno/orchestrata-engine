@@ -301,3 +301,123 @@ fn exact_cursor_evaluates_one_assignment_with_no_active_axes() {
         assert_eq!(solution.evaluated, 1);
     }
 }
+
+#[test]
+fn wide_distinct_feasibility_matches_independent_enumeration() {
+    fn visit(
+        problem: &Problem,
+        scope: &[usize],
+        values: &mut Vec<i64>,
+        best: &mut Option<(Vec<i64>, usize)>,
+    ) {
+        if values.len() < problem.variables.len() {
+            for &value in &problem.variables[values.len()].domain {
+                values.push(value);
+                visit(problem, scope, values, best);
+                values.pop();
+            }
+            return;
+        }
+        let distinct = scope
+            .iter()
+            .map(|&i| values[i])
+            .collect::<std::collections::BTreeSet<_>>();
+        if distinct.len() != scope.len() {
+            return;
+        }
+        let penalty = usize::from(values[0] != i64::MAX);
+        if best.as_ref().is_none_or(|plan| penalty < plan.1) {
+            *best = Some((values.clone(), penalty));
+        }
+    }
+
+    // Four changing fields; the last field is deliberately not in the scope.
+    // Exhaustively vary its neighbors' choices over signed extrema and range overlaps.
+    let palette = [i64::MAX, i64::MIN, -42, 0, 2, 4, 7, 12];
+    let mut feasible = 0;
+    let mut infeasible = 0;
+    for seed in 0..512 {
+        let scope = (0..16).rev().collect::<Vec<_>>();
+        let mut variables = (0..17)
+            .map(|index| Variable {
+                name: format!("field{index}"),
+                domain: if index < 3 {
+                    vec![
+                        palette[(seed >> (3 * index)) & 7],
+                        palette[(seed + index + 3) & 7],
+                    ]
+                } else if index == 16 {
+                    vec![i64::MAX, i64::MIN]
+                } else {
+                    vec![index as i64]
+                },
+            })
+            .collect::<Vec<_>>();
+        // A test-controlled fixed clash exercises full-search infeasibility.
+        if seed % 7 == 0 {
+            variables[15].domain = variables[14].domain.clone();
+        }
+        let problem = Problem {
+            variables,
+            constraints: vec![
+                Constraint::AllDifferent {
+                    variables: scope.clone(),
+                    hard_weight: 3,
+                },
+                Constraint::PreferValue {
+                    variable: 0,
+                    value: i64::MAX,
+                    soft_weight: 1,
+                },
+            ],
+        };
+        let mut expected = None;
+        visit(&problem, &scope, &mut Vec::new(), &mut expected);
+        let expected = expected.map(|(values, penalty)| Solution {
+            values,
+            score: Score {
+                hard: 0,
+                soft: -(penalty as i64),
+            },
+            evaluated: 16,
+        });
+        if expected.is_some() {
+            feasible += 1;
+        } else {
+            infeasible += 1;
+        }
+        assert_eq!(solve(&problem, 16).unwrap(), expected, "seed {seed}");
+        assert_eq!(solve(&problem, 15), Err(Error::TooManyAssignments));
+    }
+    assert!(feasible > 0 && infeasible > 0);
+}
+
+#[test]
+fn wide_distinct_diagnostic_counts_every_duplicate_pair() {
+    let values = [i64::MIN, i64::MIN, i64::MIN, i64::MAX, i64::MAX, 1, 2, 3, 4];
+    let mut problem = Problem {
+        variables: values
+            .iter()
+            .enumerate()
+            .map(|(i, &value)| Variable {
+                name: format!("field{i}"),
+                domain: vec![value],
+            })
+            .collect(),
+        constraints: vec![Constraint::AllDifferent {
+            variables: (0..values.len()).collect(),
+            hard_weight: 7,
+        }],
+    };
+    assert_eq!(
+        score(&problem, &values).unwrap(),
+        Score { hard: -28, soft: 0 }
+    );
+    assert_eq!(solve(&problem, 1).unwrap(), None);
+    problem.constraints = vec![Constraint::AllDifferent {
+        variables: (0..values.len()).collect(),
+        hard_weight: i64::MAX,
+    }];
+    assert_eq!(score(&problem, &values), Err(Error::ScoreOverflow));
+    assert_eq!(solve(&problem, 1).unwrap(), None);
+}

@@ -1,7 +1,11 @@
+#[path = "exact_search/all_different_scratch.rs"]
+mod all_different_scratch;
 #[path = "assignment_change.rs"]
 pub mod assignment_change;
 #[path = "assignment_change_reason.rs"]
 pub mod assignment_change_reason;
+#[path = "exact_search/candidate_scratch.rs"]
+mod candidate_scratch;
 #[path = "compare_solutions.rs"]
 pub mod compare_solutions;
 #[path = "compiled_problem.rs"]

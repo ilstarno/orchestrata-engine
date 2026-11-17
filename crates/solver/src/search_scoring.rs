@@ -1,5 +1,5 @@
 use super::{
-    count_value_distance::distance, no_overlap_scratch::NoOverlapScratch,
+    candidate_scratch::CandidateScratch, count_value_distance::distance,
     precedence_shortfall::shortfall, resource_capacity_evaluation::exceeds_capacity,
 };
 use crate::{Constraint, CountValueTier, Problem};
@@ -7,7 +7,7 @@ use crate::{Constraint, CountValueTier, Problem};
 pub(super) fn candidate_penalty(
     problem: &Problem,
     values: &[i64],
-    scratch: &mut NoOverlapScratch,
+    scratch: &mut CandidateScratch,
 ) -> Option<i128> {
     if problem
         .constraints
@@ -53,7 +53,7 @@ pub(super) fn candidate_penalty(
 fn violates_hard_rule(
     constraint: &Constraint,
     values: &[i64],
-    scratch: &mut NoOverlapScratch,
+    scratch: &mut CandidateScratch,
 ) -> bool {
     match constraint {
         Constraint::CountValue {
@@ -74,11 +74,7 @@ fn violates_hard_rule(
             distance(count, *min, *max) != 0
         }
         Constraint::AllDifferent { variables, .. } => {
-            variables.iter().enumerate().any(|(i, &left)| {
-                variables[i + 1..]
-                    .iter()
-                    .any(|&right| values[left] == values[right])
-            })
+            scratch.all_different.has_duplicate(variables, values)
         }
         Constraint::NotEqualOffset {
             left,
@@ -91,7 +87,9 @@ fn violates_hard_rule(
             after,
             min_gap,
         } => shortfall(values[*before], values[*after], *min_gap) != 0,
-        Constraint::NoOverlap { intervals } => scratch.has_overlap(intervals, |i| values[i]),
+        Constraint::NoOverlap { intervals } => {
+            scratch.no_overlap.has_overlap(intervals, |i| values[i])
+        }
         Constraint::ResourceCapacity { items, limits } => {
             exceeds_capacity(items, limits, |index| values[index])
         }

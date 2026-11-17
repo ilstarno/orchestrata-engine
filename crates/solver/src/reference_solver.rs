@@ -1,4 +1,4 @@
-use super::{exact_assignments::ExactAssignments, no_overlap_scratch::NoOverlapScratch};
+use super::{candidate_scratch::CandidateScratch, exact_assignments::ExactAssignments};
 use crate::module::search_scoring::candidate_penalty;
 use crate::{Error, Problem, Score, Solution, validate, verify_solution};
 
@@ -28,7 +28,7 @@ pub(crate) fn solve_validated(
     }
 
     let mut assignments = ExactAssignments::new(&problem.variables);
-    let mut scratch = NoOverlapScratch::default();
+    let mut scratch = CandidateScratch::default();
     let mut best: Option<(Vec<i64>, i128)> = None;
     let mut evaluated = 0_u64;
 
