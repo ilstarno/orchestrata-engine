@@ -41,12 +41,16 @@ fn v1_classifies_model_errors_and_never_allocates_on_failure() {
 
 #[test]
 fn v1_counts_distinct_options_in_the_evaluation_budget() {
-    let duplicate_options = br#"{"variables":[{"name":"job","domain":[9,1,9,1]}],"constraints":[]}"#;
+    let duplicate_options =
+        br#"{"variables":[{"name":"job","domain":[9,1,9,1]}],"constraints":[]}"#;
     assert_eq!(
         invoke(duplicate_options, 2),
         Ok(r#"{"solution":{"values":[9],"score":{"hard":0,"soft":0},"evaluated":2}}"#.into())
     );
-    assert_eq!(invoke(duplicate_options, 1), Err(Status::SearchLimit as i32));
+    assert_eq!(
+        invoke(duplicate_options, 1),
+        Err(Status::SearchLimit as i32)
+    );
 }
 
 #[test]

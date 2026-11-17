@@ -16,6 +16,10 @@ extern "C" {
 #define ORCHESTRATA_SEARCH_LIMIT INT32_C(2)
 #define ORCHESTRATA_INTERNAL_ERROR INT32_C(3)
 #define ORCHESTRATA_INVALID_ARGUMENT INT32_C(4)
+#define ORCHESTRATA_MALFORMED_JSON INT32_C(5)
+#define ORCHESTRATA_UNKNOWN_FIELD INT32_C(6)
+#define ORCHESTRATA_DUPLICATE_FIELD INT32_C(7)
+#define ORCHESTRATA_INVALID_SHAPE INT32_C(8)
 
 uint32_t orchestrata_abi_version(void);
 
@@ -30,6 +34,18 @@ uint32_t orchestrata_abi_version(void);
  * Input is limited to ORCHESTRATA_MAX_REQUEST_BYTES.
  */
 int32_t orchestrata_solve_json_v1(
+    const uint8_t *request,
+    size_t request_length,
+    uint64_t max_evaluations,
+    char **result
+);
+
+/*
+ * Optional strict entry point with the same limits and ownership contract.
+ * Status codes 5–8 describe invalid input syntax, unknown or duplicate fields,
+ * and invalid shapes. Semantically invalid problems still return code 1.
+ */
+int32_t orchestrata_solve_json_strict_v1(
     const uint8_t *request,
     size_t request_length,
     uint64_t max_evaluations,

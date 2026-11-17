@@ -14,6 +14,8 @@ mod count_value_distance;
 pub mod enums;
 #[path = "incremental_scorer.rs"]
 pub mod incremental_scorer;
+#[path = "input/mod.rs"]
+pub(crate) mod input;
 #[path = "local_search.rs"]
 pub mod local_search;
 #[path = "move_trial.rs"]
@@ -64,5 +66,3 @@ pub mod validation;
 pub mod variable;
 #[path = "wide_score.rs"]
 mod wide_score;
-#[path = "input/mod.rs"]
-pub(crate) mod input;

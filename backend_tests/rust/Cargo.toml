@@ -82,3 +82,7 @@ path = "solver/traffic_placement.rs"
 [[test]]
 name = "prepared_problem"
 path = "solver/input/prepared_problem.rs"
+
+[[test]]
+name = "strict_intake"
+path = "ffi/strict_intake.rs"

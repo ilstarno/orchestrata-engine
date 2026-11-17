@@ -49,7 +49,11 @@ fn unique_domains_match_the_existing_reference_search() {
         }],
     );
     let direct = solve(&input, 3).unwrap().unwrap();
-    let result = PreparedProblem::prepare(input).unwrap().solve(3).unwrap().unwrap();
+    let result = PreparedProblem::prepare(input)
+        .unwrap()
+        .solve(3)
+        .unwrap()
+        .unwrap();
     assert_eq!(result.values, direct.values);
     assert_eq!(result.score, direct.score);
     assert_eq!(result.evaluated, direct.evaluated);
@@ -59,12 +63,22 @@ fn unique_domains_match_the_existing_reference_search() {
 fn normalizes_each_domain_without_reordering_variables() {
     let input = Problem {
         variables: vec![
-            Variable { name: "first".into(), domain: vec![7, 1, 7] },
-            Variable { name: "second".into(), domain: vec![4, -2, 6, -2] },
+            Variable {
+                name: "first".into(),
+                domain: vec![7, 1, 7],
+            },
+            Variable {
+                name: "second".into(),
+                domain: vec![4, -2, 6, -2],
+            },
         ],
         constraints: vec![],
     };
-    let result = PreparedProblem::prepare(input).unwrap().solve(6).unwrap().unwrap();
+    let result = PreparedProblem::prepare(input)
+        .unwrap()
+        .solve(6)
+        .unwrap()
+        .unwrap();
     assert_eq!(result.values, vec![7, 4]);
     assert_eq!(result.evaluated, 6);
 }
