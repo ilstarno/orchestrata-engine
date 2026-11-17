@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // @author Orchestrata contributors
 
+pub mod capacity_matching;
 pub mod interview_scheduling;
 pub mod lead_ownership;
 #[path = "module.rs"]
