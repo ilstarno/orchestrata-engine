@@ -1,3 +1,4 @@
+use super::exact_assignments::ExactAssignments;
 use crate::module::search_scoring::candidate_penalty;
 use crate::{Error, Problem, Score, Solution, validate, verify_solution};
 
@@ -26,34 +27,20 @@ pub(crate) fn solve_validated(
         return Err(Error::TooManyAssignments);
     }
 
-    let mut values = vec![0; problem.variables.len()];
-    let mut positions = vec![0_usize; problem.variables.len()];
+    let mut assignments = ExactAssignments::new(&problem.variables);
     let mut best: Option<(Vec<i64>, i128)> = None;
     let mut evaluated = 0_u64;
 
     loop {
-        for (index, variable) in problem.variables.iter().enumerate() {
-            values[index] = variable.domain[positions[index]];
-        }
-
+        let values = assignments.values();
         evaluated += 1;
-        if let Some(penalty) = candidate_penalty(problem, &values)
+        if let Some(penalty) = candidate_penalty(problem, values)
             && best.as_ref().is_none_or(|(_, best)| penalty < *best)
         {
-            best = Some((values.clone(), penalty));
+            best = Some((values.to_vec(), penalty));
         }
 
-        let mut next = positions.len();
-        while next > 0 {
-            next -= 1;
-            positions[next] += 1;
-            if positions[next] < problem.variables[next].domain.len() {
-                break;
-            }
-            positions[next] = 0;
-        }
-
-        if positions.is_empty() || (next == 0 && positions[0] == 0) {
+        if !assignments.advance() {
             break;
         }
     }

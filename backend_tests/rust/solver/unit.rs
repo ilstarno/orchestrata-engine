@@ -240,3 +240,64 @@ fn reference_search_evaluates_every_combination() {
     assert_eq!(result.evaluated, 12);
     assert_eq!(result.values, vec![0, 0, 0]);
 }
+
+#[test]
+fn exact_cursor_preserves_declared_ties_and_counts_duplicate_positions() {
+    let problem = Problem {
+        variables: vec![
+            Variable {
+                name: "fixed first".into(),
+                domain: vec![i64::MAX],
+            },
+            Variable {
+                name: "left".into(),
+                domain: vec![7, -9, 7],
+            },
+            Variable {
+                name: "fixed middle".into(),
+                domain: vec![i64::MIN],
+            },
+            Variable {
+                name: "right".into(),
+                domain: vec![7, -9],
+            },
+            Variable {
+                name: "fixed last".into(),
+                domain: vec![0],
+            },
+        ],
+        constraints: vec![Constraint::NotEqualOffset {
+            left: 1,
+            right: 3,
+            offset: 0,
+            hard_weight: 1,
+        }],
+    };
+    assert_eq!(solve(&problem, 5), Err(Error::TooManyAssignments));
+    let solution = solve(&problem, 6).unwrap().unwrap();
+    assert_eq!(solution.values, [i64::MAX, 7, i64::MIN, -9, 0]);
+    assert_eq!(solution.evaluated, 6);
+    assert_eq!(solution.score, Score { hard: 0, soft: 0 });
+}
+
+#[test]
+fn exact_cursor_evaluates_one_assignment_with_no_active_axes() {
+    for domains in [vec![], vec![vec![i64::MIN], vec![i64::MAX]]] {
+        let expected: Vec<_> = domains.iter().map(|d| d[0]).collect();
+        let problem = Problem {
+            variables: domains
+                .into_iter()
+                .enumerate()
+                .map(|(i, domain)| Variable {
+                    name: i.to_string(),
+                    domain,
+                })
+                .collect(),
+            constraints: vec![],
+        };
+        assert_eq!(solve(&problem, 0), Err(Error::TooManyAssignments));
+        let solution = solve(&problem, 1).unwrap().unwrap();
+        assert_eq!(solution.values, expected);
+        assert_eq!(solution.evaluated, 1);
+    }
+}

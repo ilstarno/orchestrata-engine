@@ -12,6 +12,8 @@ mod constraint_contribution;
 mod count_value_distance;
 #[path = "enums/module.rs"]
 pub mod enums;
+#[path = "exact_assignments.rs"]
+mod exact_assignments;
 #[path = "incremental_scorer.rs"]
 pub mod incremental_scorer;
 #[path = "input/mod.rs"]
