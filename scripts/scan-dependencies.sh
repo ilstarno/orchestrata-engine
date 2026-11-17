@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-test -s "backend/Cargo.lock"
+test -s "Cargo.lock"
 test -s "backend_tests/rust/Cargo.lock"
 scan_dir="$(mktemp -d)"
 trap 'rm -rf -- "$scan_dir"' EXIT
@@ -17,4 +17,4 @@ mkdir -p "$OSV_SCANNER_LOCAL_DB_CACHE_DIRECTORY/osv-scalibr/crates.io"
 curl --fail --silent --show-error --location --retry 2 --max-time 120 \
   https://storage.googleapis.com/osv-vulnerabilities/crates.io/all.zip \
   --output "$OSV_SCANNER_LOCAL_DB_CACHE_DIRECTORY/osv-scalibr/crates.io/all.zip"
-"$scan_dir/osv-scanner" scan source --offline --lockfile="backend/Cargo.lock" --lockfile="backend_tests/rust/Cargo.lock"
+"$scan_dir/osv-scanner" scan source --offline --lockfile="Cargo.lock" --lockfile="backend_tests/rust/Cargo.lock"
