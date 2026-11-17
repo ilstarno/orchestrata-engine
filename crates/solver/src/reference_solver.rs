@@ -1,4 +1,4 @@
-use super::exact_assignments::ExactAssignments;
+use super::{exact_assignments::ExactAssignments, no_overlap_scratch::NoOverlapScratch};
 use crate::module::search_scoring::candidate_penalty;
 use crate::{Error, Problem, Score, Solution, validate, verify_solution};
 
@@ -28,13 +28,14 @@ pub(crate) fn solve_validated(
     }
 
     let mut assignments = ExactAssignments::new(&problem.variables);
+    let mut scratch = NoOverlapScratch::default();
     let mut best: Option<(Vec<i64>, i128)> = None;
     let mut evaluated = 0_u64;
 
     loop {
         let values = assignments.values();
         evaluated += 1;
-        if let Some(penalty) = candidate_penalty(problem, values)
+        if let Some(penalty) = candidate_penalty(problem, values, &mut scratch)
             && best.as_ref().is_none_or(|(_, best)| penalty < *best)
         {
             best = Some((values.to_vec(), penalty));

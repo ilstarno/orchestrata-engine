@@ -24,6 +24,8 @@ pub mod local_search;
 pub mod move_trial;
 #[path = "no_overlap.rs"]
 mod no_overlap;
+#[path = "no_overlap_scratch.rs"]
+mod no_overlap_scratch;
 #[path = "precedence_shortfall.rs"]
 mod precedence_shortfall;
 #[path = "problem.rs"]

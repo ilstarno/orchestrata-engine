@@ -21,15 +21,6 @@ pub(super) fn validate_intervals(
     Ok(())
 }
 
-pub(super) fn has_overlap(
-    intervals: &[ScheduledInterval],
-    value_at: impl Fn(usize) -> i64,
-) -> bool {
-    let mut starts: Vec<_> = ranges(intervals, value_at).collect();
-    starts.sort_unstable();
-    starts.windows(2).any(|pair| pair[0].1 > pair[1].0)
-}
-
 /// Sum occupied overlap time across all unordered pairs without enumerating
 /// pairs. Over every constant-active segment, k intervals contribute k(k-1)/2
 /// pairs. Starts and ends at equal timestamps contribute no time.
@@ -59,7 +50,7 @@ pub(super) fn overlap_score(
     Ok(penalty)
 }
 
-fn ranges(
+pub(super) fn ranges(
     intervals: &[ScheduledInterval],
     value_at: impl Fn(usize) -> i64,
 ) -> impl Iterator<Item = (i128, i128)> {

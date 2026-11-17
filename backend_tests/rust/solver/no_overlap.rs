@@ -112,3 +112,72 @@ fn rejects_short_duplicate_and_unknown_scopes_with_indexed_reasons() {
         );
     }
 }
+
+#[test]
+fn exact_feasibility_matches_pairwise_wide_interval_oracle() {
+    let starts = [i64::MIN, -4, -1, 0, 1, 4, i64::MAX];
+    let durations = [0, 1, 2, 4, u64::MAX];
+    let mut rng = 0xa86e_251f_cc41_2753_u64;
+    let mut choose = |length: usize| {
+        rng ^= rng << 13;
+        rng ^= rng >> 7;
+        rng ^= rng << 17;
+        (rng % length as u64) as usize
+    };
+    for case in 0..512 {
+        let length = 2 + case % 5;
+        let domains: Vec<_> = (0..length)
+            .map(|_| [starts[choose(starts.len())], starts[choose(starts.len())]])
+            .collect();
+        let domain_slices: Vec<_> = domains.iter().map(|d| d.as_slice()).collect();
+        let occupied: Vec<_> = (0..length)
+            .map(|_| durations[choose(durations.len())])
+            .collect();
+        let mut problem = room(&domain_slices, &occupied);
+        let second: Vec<_> = (0..length)
+            .map(|start| interval(start, durations[choose(durations.len())]))
+            .collect();
+        problem.constraints.push(Constraint::NoOverlap {
+            intervals: second.clone(),
+        });
+        let combinations = 1_u64 << length;
+        assert_eq!(
+            solve(&problem, combinations - 1),
+            Err(Error::TooManyAssignments)
+        );
+        let feasible = (0..combinations).find_map(|digits| {
+            let values: Vec<_> = domains
+                .iter()
+                .enumerate()
+                .map(|(i, domain)| domain[((digits >> (length - 1 - i)) & 1) as usize])
+                .collect();
+            let count = |rule: &[ScheduledInterval]| {
+                rule.iter().enumerate().all(|(i, left)| {
+                    rule[..i].iter().all(|right| {
+                        let a = i128::from(values[left.start]);
+                        let b = i128::from(values[right.start]);
+                        left.duration == 0
+                            || right.duration == 0
+                            || a + i128::from(left.duration) <= b
+                            || b + i128::from(right.duration) <= a
+                    })
+                })
+            };
+            let first: Vec<_> = occupied
+                .iter()
+                .enumerate()
+                .map(|(i, &d)| interval(i, d))
+                .collect();
+            (count(&first) && count(&second)).then_some(Solution {
+                values,
+                score: Score { hard: 0, soft: 0 },
+                evaluated: combinations,
+            })
+        });
+        assert_eq!(
+            solve(&problem, combinations).unwrap(),
+            feasible,
+            "case {case}"
+        );
+    }
+}
