@@ -46,3 +46,39 @@ fn route_selection_is_explicit_and_identities_bind_snapshot_and_limit() {
     );
     assert!(load_package(&pack(&members, false, true)).is_err());
 }
+
+#[test]
+fn opt_in_coverage_is_bound_to_the_compiled_package_and_snapshot() {
+    use orchestrata_recipe_runtime::route_dispatch::{CoverageOutcome, MAX_COVERAGE_WORK};
+    let mut members = files();
+    asset(
+        &mut members,
+        "models/maintenance-cost.xml",
+        MODEL.as_bytes().to_vec(),
+    );
+    let package = load_package(&pack(&members, false, true)).unwrap();
+    let c = package.compile_route(None, DATA, 200).unwrap();
+    let solved = package
+        .compile_route(None, DATA, 200)
+        .unwrap()
+        .solve()
+        .unwrap();
+    let result = c
+        .certify_coverage(&solved.solution, MAX_COVERAGE_WORK)
+        .unwrap();
+    assert_eq!(result.content_identity, solved.content_identity);
+    assert_eq!(result.execution_identity, solved.execution_identity);
+    assert_eq!(result.input_identity, solved.input_identity);
+    assert_eq!(result.request_identity, solved.request_identity);
+    let CoverageOutcome::Complete(cert) = result.coverage else {
+        panic!("complete")
+    };
+    assert_eq!(
+        (
+            cert.incumbent_covered,
+            cert.upper_bound,
+            cert.maximum_coverage
+        ),
+        (3, 3, true)
+    );
+}

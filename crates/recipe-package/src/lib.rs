@@ -54,3 +54,6 @@ pub use compiled_route_package::CompiledRoutePackage;
 
 mod route_package_solution;
 pub use route_package_solution::RoutePackageSolution;
+
+mod route_package_coverage;
+pub use route_package_coverage::RoutePackageCoverage;

@@ -25,3 +25,11 @@ pub use dispatch_visit::DispatchVisit;
 pub use parse::{compile_route_model, parse_route_model};
 pub use route_spec::RouteSpec;
 pub use solve::solve_route_model;
+
+mod coverage;
+mod coverage_error;
+pub use coverage::certify_route_coverage;
+pub use coverage_error::DispatchCoverageError;
+pub use orchestrata_solver::routing::coverage::{
+    CoverageCertificate, CoverageOutcome, MAX_COVERAGE_WORK,
+};

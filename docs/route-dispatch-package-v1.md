@@ -48,3 +48,7 @@ The result envelope contains `content_identity`, `execution_identity`, `input_id
 Identities use SHA-256. Content identity is the existing sorted-member hash. Route execution uses domain `orcpkg-execution-route-dispatch-v1\0`, then u64-BE length-prefixed entrypoint ID, model path and exact model bytes. Input identity uses `orcpkg-route-input-v1\0` plus u64-BE length-prefixed exact UTF-8 JSON bytes. It is not canonical semantic JSON: whitespace changes its identity. Request identity uses `orcpkg-route-request-v1\0`, then fixed 32-byte content, execution and input digests, then the caller budget as u32-BE. None of these identifies the runtime binary or proves authorization; retain those separately for replay/audit.
 
 With fixed input bounds, all output clocks are at most 1000000, total courier-minutes at most 16000000, trials at most 20000 and visits at most 64. These quantities fit JavaScript safe integers without rounding. Each run fully recomputes; there are no incremental updates or scale claims.
+
+An explicit Rust [coverage certificate](route-coverage.md) can separately bound
+the number of served shipments. It does not alter these commands or result bytes,
+and it does not certify courier-minutes or any other objective.

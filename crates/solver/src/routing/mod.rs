@@ -38,3 +38,5 @@ pub use stop::Stop;
 pub use time_window::TimeWindow;
 pub use verification::verify_routes;
 pub use visit_kind::VisitKind;
+
+pub mod coverage;
