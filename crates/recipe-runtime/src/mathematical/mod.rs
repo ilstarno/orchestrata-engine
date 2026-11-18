@@ -25,3 +25,14 @@ pub use solve::solve_model;
 pub fn run_model(xml: &str, inputs: &str) -> Result<ModelSolution, ModelError> {
     solve_model(compile_model(&parse_model(xml)?, inputs)?)
 }
+
+mod compiled_penalty_model;
+mod penalty;
+mod penalty_model_solution;
+mod penalty_model_spec;
+pub use compiled_penalty_model::CompiledPenaltyModel;
+pub use penalty::{
+    compile_penalty_model, parse_penalty_model, run_penalty_model, solve_penalty_model,
+};
+pub use penalty_model_solution::PenaltyModelSolution;
+pub use penalty_model_spec::PenaltyModelSpec;

@@ -23,3 +23,12 @@ pub(crate) fn execution(id: &str, path: &PackagePath, bytes: &[u8]) -> Execution
     field(&mut h, bytes);
     ExecutionIdentity(h.finalize().into())
 }
+
+pub(crate) fn execution_penalty(id: &str, path: &PackagePath, bytes: &[u8]) -> ExecutionIdentity {
+    let mut h = Sha256::new();
+    h.update(b"orcpkg-execution-math-v2-penalty\0");
+    field(&mut h, id.as_bytes());
+    field(&mut h, path.as_str().as_bytes());
+    field(&mut h, bytes);
+    ExecutionIdentity(h.finalize().into())
+}
