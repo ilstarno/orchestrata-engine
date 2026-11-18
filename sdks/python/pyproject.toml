@@ -6,6 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "orchestrata-native"
 version = "0.1.0"
 requires-python = ">=3.10"
+readme = "README.md"
 
 [tool.setuptools]
 py-modules = ["orchestrata", "orchestrata_models"]

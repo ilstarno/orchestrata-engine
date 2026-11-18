@@ -5,6 +5,7 @@
   "main": "index.js",
   "types": "index.d.ts",
   "gypfile": true,
+  "files": ["binding.gyp", "native.c", "index.js", "index.d.ts"],
   "scripts": {
     "build": "node-gyp rebuild"
   }

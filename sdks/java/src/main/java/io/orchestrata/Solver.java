@@ -99,6 +99,8 @@ public final class Solver implements AutoCloseable {
     private static MethodHandle downcall(
         Linker linker, SymbolLookup symbols, String name, FunctionDescriptor signature
     ) {
-        return linker.downcallHandle(symbols.find(name).orElseThrow(), signature);
+        var address = symbols.find(name).orElseThrow(() ->
+            new IllegalStateException("Missing Orchestrata native symbol: " + name));
+        return linker.downcallHandle(address, signature);
     }
 }

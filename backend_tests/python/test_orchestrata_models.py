@@ -127,3 +127,11 @@ class NativeTypedTests(unittest.TestCase):
                 self.solver, "solve_json", return_value=json.dumps(reply).encode()
             ), self.assertRaises(ResultFormatError):
                 self.solver.solve_problem(problem, 1)
+
+    def test_typed_response_must_not_exceed_requested_budget(self):
+        problem = Problem((Variable("x", (1,)),))
+        reply = b'{"solution":{"values":[1],"score":{"hard":0,"soft":0},"evaluated":2}}'
+        with patch.object(self.solver, "solve_json", return_value=reply), self.assertRaisesRegex(
+            ResultFormatError, "exceeds the requested evaluation budget"
+        ):
+            self.solver.solve_problem(problem, 1)
