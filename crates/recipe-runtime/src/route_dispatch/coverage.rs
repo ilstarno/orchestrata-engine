@@ -13,6 +13,29 @@ pub fn certify_route_coverage(
     result: &DispatchSolution,
     max_work: u32,
 ) -> Result<CoverageOutcome, Error> {
+    let routes = replay_input(c, result)?;
+    certify_coverage(&c.problem, &routes, max_work, |m, f, t| {
+        c.travel.get(&(m, f, t)).copied()
+    })
+    .map_err(Error::Native)
+}
+
+/// Explicit stronger capacity relaxation, with one total deterministic budget.
+pub fn certify_route_coverage_with_travel(
+    c: &CompiledRoute,
+    result: &DispatchSolution,
+    max_work: u32,
+) -> Result<super::TravelCoverageOutcome, Error> {
+    let routes = replay_input(c, result)?;
+    orchestrata_solver::routing::coverage::certify_coverage_with_travel(
+        &c.problem,
+        &routes,
+        max_work,
+        |m, f, t| c.travel.get(&(m, f, t)).copied(),
+    )
+    .map_err(Error::Native)
+}
+fn replay_input(c: &CompiledRoute, result: &DispatchSolution) -> Result<Vec<CourierRoute>, Error> {
     if result.schema != "route-dispatch-result-v1"
         || result.time_unit != "minutes"
         || result.load_unit != "kg"
@@ -86,8 +109,5 @@ pub fn certify_route_coverage(
     {
         return Err(Error::InvalidResult);
     }
-    certify_coverage(&c.problem, &routes, max_work, |m, f, t| {
-        c.travel.get(&(m, f, t)).copied()
-    })
-    .map_err(Error::Native)
+    Ok(routes)
 }

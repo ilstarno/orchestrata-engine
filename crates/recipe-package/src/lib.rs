@@ -57,3 +57,6 @@ pub use route_package_solution::RoutePackageSolution;
 
 mod route_package_coverage;
 pub use route_package_coverage::RoutePackageCoverage;
+
+mod route_package_travel_coverage;
+pub use route_package_travel_coverage::RoutePackageTravelCoverage;

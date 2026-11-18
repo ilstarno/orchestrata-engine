@@ -46,3 +46,28 @@ impl CompiledRoutePackage {
         })
     }
 }
+
+impl CompiledRoutePackage {
+    /// Explicit stronger coverage bound including optimistic cumulative travel.
+    pub fn certify_coverage_with_travel(
+        &self,
+        incumbent: &orchestrata_recipe_runtime::route_dispatch::DispatchSolution,
+        max_work: u32,
+    ) -> Result<
+        crate::RoutePackageTravelCoverage,
+        orchestrata_recipe_runtime::route_dispatch::DispatchCoverageError,
+    > {
+        Ok(crate::RoutePackageTravelCoverage {
+            content_identity: self.content_identity,
+            execution_identity: self.execution_identity,
+            input_identity: self.input_identity,
+            request_identity: self.request_identity,
+            coverage:
+                orchestrata_recipe_runtime::route_dispatch::certify_route_coverage_with_travel(
+                    &self.model,
+                    incumbent,
+                    max_work,
+                )?,
+        })
+    }
+}

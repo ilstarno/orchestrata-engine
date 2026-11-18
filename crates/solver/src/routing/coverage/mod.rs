@@ -16,3 +16,12 @@ pub use flow::verify_flow_witness;
 pub use outcome::CoverageOutcome;
 pub use witness::FlowWitness;
 pub const MAX_COVERAGE_WORK: u32 = 5_000_000;
+
+mod travel_bound;
+mod travel_capacity;
+mod travel_certificate;
+mod travel_outcome;
+pub use travel_bound::certify_coverage_with_travel;
+pub use travel_capacity::CourierTravelCapacity;
+pub use travel_certificate::TravelCoverageCertificate;
+pub use travel_outcome::TravelCoverageOutcome;
