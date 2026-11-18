@@ -201,6 +201,7 @@ dependencies = [
  "serde_json",
  "sha2",
  "spdx",
+ "syn 2.0.119",
  "zip",
 ]
 
