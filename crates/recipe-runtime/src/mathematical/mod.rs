@@ -48,3 +48,12 @@ mod record_value;
 mod typed_record_tests;
 mod unsigned_field;
 mod validated_record;
+
+mod assignment_domain;
+mod derived_domain;
+mod derived_model;
+mod derived_model_spec;
+mod parse_derived_domain;
+mod row_equality;
+pub use derived_model::{compile_derived_model, parse_derived_model, run_derived_model};
+pub use derived_model_spec::DerivedModelSpec;

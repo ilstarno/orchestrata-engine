@@ -1,3 +1,4 @@
+use super::assignment_domain::AssignmentDomain;
 use super::{
     ModelError, ModelSpec, constraint::Constraint, decision::Decision, field_type::FieldType,
     input_binding::InputBinding, objective::Objective, xml_helpers::*,
@@ -67,7 +68,7 @@ pub(super) fn parse_version(xml: &str, version: &str) -> Result<ModelSpec, Model
             return Err(ModelError::InvalidXml);
         }
     }
-    if bindings.len() != 3 {
+    if bindings.len() != if version == "3" { 2 } else { 3 } {
         return Err(ModelError::UnsupportedSemantics);
     }
     tag(parameters, "parameters", &[])?;
@@ -87,47 +88,73 @@ pub(super) fn parse_version(xml: &str, version: &str) -> Result<ModelSpec, Model
             return Err(ModelError::InvalidXml);
         }
     }
-    leaf(
-        decision,
-        "decision",
-        &[
-            "name",
-            "kind",
-            "items",
-            "resources",
-            "domain",
-            "item-id",
-            "resource-id",
-            "edge-item",
-            "edge-resource",
-            "nullable",
-        ],
-    )?;
+    if version == "3" {
+        tag(
+            decision,
+            "decision",
+            &[
+                "name",
+                "kind",
+                "items",
+                "resources",
+                "domain",
+                "item-id",
+                "resource-id",
+                "nullable",
+                "pair-limit",
+                "comparison-limit",
+            ],
+        )?;
+    } else {
+        leaf(
+            decision,
+            "decision",
+            &[
+                "name",
+                "kind",
+                "items",
+                "resources",
+                "domain",
+                "item-id",
+                "resource-id",
+                "edge-item",
+                "edge-resource",
+                "nullable",
+            ],
+        )?;
+    }
     if decision.attribute("kind") != Some("reference") {
         return Err(ModelError::UnsupportedSemantics);
     }
     let name = attr(decision, "name")?;
     let items = attr(decision, "items")?;
     let resources = attr(decision, "resources")?;
-    let domain = attr(decision, "domain")?;
     let item_id = attr(decision, "item-id")?;
     let resource_id = attr(decision, "resource-id")?;
-    let edge_item = attr(decision, "edge-item")?;
-    let edge_resource = attr(decision, "edge-resource")?;
     let nullable = boolean(
         decision
             .attribute("nullable")
             .ok_or(ModelError::InvalidXml)?,
     )?;
-    if BTreeSet::from([&items, &resources, &domain]).len() != 3 || edge_item == edge_resource {
-        return Err(ModelError::UnsupportedSemantics);
-    }
+    let domain = if version == "3" {
+        super::parse_derived_domain::parse_derived_domain(decision, &bindings, &items, &resources)?
+    } else {
+        let domain = attr(decision, "domain")?;
+        let edge_item = attr(decision, "edge-item")?;
+        let edge_resource = attr(decision, "edge-resource")?;
+        if BTreeSet::from([&items, &resources, &domain]).len() != 3 || edge_item == edge_resource {
+            return Err(ModelError::UnsupportedSemantics);
+        }
+        AssignmentDomain::Supplied {
+            item: IdField::bind(&bindings, &domain, edge_item)?,
+            resource: IdField::bind(&bindings, &domain, edge_resource)?,
+            table: domain,
+        }
+    };
     let d = Decision {
         name,
         item_id: IdField::bind(&bindings, &items, item_id)?,
         resource_id: IdField::bind(&bindings, &resources, resource_id)?,
-        edge_item: IdField::bind(&bindings, &domain, edge_item)?,
-        edge_resource: IdField::bind(&bindings, &domain, edge_resource)?,
         items,
         resources,
         domain,
@@ -183,7 +210,7 @@ pub(super) fn parse_version(xml: &str, version: &str) -> Result<ModelSpec, Model
     }
     tag(objectives, "objectives", &["order"])?;
     if objectives.attribute("order")
-        != Some(if version == "1" {
+        != Some(if version != "2" {
             "lexicographic"
         } else {
             "single"
@@ -212,7 +239,8 @@ pub(super) fn parse_version(xml: &str, version: &str) -> Result<ModelSpec, Model
                 let service_field = attr(o, "service-field")?;
                 let penalty_field = attr(o, "penalty-field")?;
                 let unit = attr(o, "unit")?;
-                let service_field = UnsignedField::bind(&bindings, &d.domain, service_field)?;
+                let service_field =
+                    UnsignedField::bind(&bindings, d.domain.supplied_table()?, service_field)?;
                 let penalty_field = UnsignedField::bind(&bindings, &d.items, penalty_field)?;
                 goals.push(Objective::MinTotalCost {
                     service_field,
@@ -220,14 +248,14 @@ pub(super) fn parse_version(xml: &str, version: &str) -> Result<ModelSpec, Model
                     unit,
                 });
             }
-            ("maximize", Some("assigned-count")) if version == "1" => {
+            ("maximize", Some("assigned-count")) if version == "1" || version == "3" => {
                 leaf(o, "maximize", &["variable", "operator"])?;
                 goals.push(Objective::MaxAssigned);
             }
             ("minimize", Some("edge-sum")) if version == "1" => {
                 leaf(o, "minimize", &["variable", "operator", "field"])?;
                 let f = attr(o, "field")?;
-                let f = UnsignedField::bind(&bindings, &d.domain, f)?;
+                let f = UnsignedField::bind(&bindings, d.domain.supplied_table()?, f)?;
                 goals.push(Objective::MinEdgeSum(f));
             }
             _ => return Err(ModelError::UnsupportedSemantics),
@@ -238,6 +266,8 @@ pub(super) fn parse_version(xml: &str, version: &str) -> Result<ModelSpec, Model
             goals.as_slice(),
             [Objective::MaxAssigned] | [Objective::MaxAssigned, Objective::MinEdgeSum(_)]
         )
+    } else if version == "3" {
+        matches!(goals.as_slice(), [Objective::MaxAssigned])
     } else {
         d.nullable && matches!(goals.as_slice(), [Objective::MinTotalCost { .. }])
     };
