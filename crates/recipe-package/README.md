@@ -66,4 +66,4 @@ Atomic no-clobber publication uses a hard link from a sibling temporary file. Th
 
 ## Explicit model versions
 
-Package validation accepts supported mathematical model versions without selecting an execution policy. Successful validation does not imply v1 execution, hosted support or authorization. `compile` and `solve-package` remain v1-only. V2 omission penalties require `compile_penalty` and `solve-penalty-package`, with distinct accounting and execution identity. See [the v2 contract](../../docs/penalty-xml-v2.md). No version fallback or result-field alias is applied.
+Package validation accepts supported mathematical model versions without selecting an execution policy. Successful validation does not imply v1 execution, hosted support or authorization. `compile` and `solve-package` remain v1-only. V2 omission penalties require `compile_penalty` and `solve-penalty-package`, with distinct accounting and execution identity. No version fallback or result-field alias is applied.

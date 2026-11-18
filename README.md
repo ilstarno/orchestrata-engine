@@ -27,7 +27,7 @@ See the [SDK guide](sdks/README.md) for the library name on your platform, nativ
 
 ## Assign jobs within worker capacity
 
-Use the [Rust capacity example](docs/capacity-matching.md) to assign as many
+Use the Rust capacity example to assign as many
 independent jobs as possible to eligible workers without exceeding their job
 limits.
 
