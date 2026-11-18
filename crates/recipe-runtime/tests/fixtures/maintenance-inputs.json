@@ -1,0 +1,53 @@
+{
+  "work-orders": [
+    {
+      "id": "job-0",
+      "name": "Synthetic job 0",
+      "required_skill": "Repair"
+    },
+    {
+      "id": "job-1",
+      "name": "Synthetic job 1",
+      "required_skill": "Inspection"
+    },
+    {
+      "id": "job-2",
+      "name": "Synthetic job 2",
+      "required_skill": "Repair"
+    },
+    {
+      "id": "job-3",
+      "name": "Synthetic job 3",
+      "required_skill": "Electrical"
+    }
+  ],
+  "technicians": [
+    {
+      "id": "repair-tech",
+      "name": "Synthetic technician",
+      "skills": [
+        "Repair"
+      ],
+      "available": true,
+      "capacity": 2
+    },
+    {
+      "id": "inspection-tech",
+      "name": "Synthetic technician",
+      "skills": [
+        "Inspection"
+      ],
+      "available": true,
+      "capacity": 1
+    },
+    {
+      "id": "electrical-tech",
+      "name": "Synthetic technician",
+      "skills": [
+        "Electrical"
+      ],
+      "available": false,
+      "capacity": 1
+    }
+  ]
+}
