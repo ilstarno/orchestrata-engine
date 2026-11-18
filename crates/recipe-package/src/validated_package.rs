@@ -79,4 +79,40 @@ impl ValidatedPackage {
             execution_identity: identity::execution_penalty(&e.id, &e.model, bytes),
         })
     }
+
+    /// Explicit routing interface with a caller-supplied total insertion budget.
+    pub fn compile_route(
+        &self,
+        selection: Option<&str>,
+        records: &str,
+        budget: u32,
+    ) -> Result<crate::CompiledRoutePackage, PackageError> {
+        use orchestrata_recipe_runtime::route_dispatch::{compile_route_model, parse_route_model};
+        let e = self
+            .entrypoints
+            .get(selection.unwrap_or(&self.default_entrypoint))
+            .ok_or(PackageError::Entrypoint)?;
+        let bytes = &self.files[&e.model];
+        let xml = std::str::from_utf8(bytes).map_err(|_| PackageError::Xml)?;
+        let model = compile_route_model(
+            &parse_route_model(xml).map_err(|_| PackageError::Unsupported)?,
+            records,
+            budget,
+        )
+        .map_err(|_| PackageError::Unsupported)?;
+        let execution_identity = identity::execution_route(&e.id, &e.model, bytes);
+        let input_identity = identity::route_input(records.as_bytes());
+        Ok(crate::CompiledRoutePackage {
+            model,
+            content_identity: self.identity,
+            execution_identity,
+            input_identity,
+            request_identity: identity::route_request(
+                self.identity,
+                execution_identity,
+                input_identity,
+                budget,
+            ),
+        })
+    }
 }

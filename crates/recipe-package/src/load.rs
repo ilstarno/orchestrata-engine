@@ -26,6 +26,10 @@ pub fn load_package(bytes: &[u8]) -> Result<ValidatedPackage, PackageError> {
         let text = std::str::from_utf8(bytes).map_err(|_| PackageError::Xml)?;
         let doc = xml::document(text)?;
         match a.kind {
+            AssetKind::Model if doc.root_element().has_tag_name("route-dispatch") => {
+                orchestrata_recipe_runtime::route_dispatch::parse_route_model(text)
+                    .map_err(|_| PackageError::Unsupported)?;
+            }
             AssetKind::Model => match doc.root_element().attribute("version") {
                 Some("1") => {
                     parse_model(text).map_err(|_| PackageError::Unsupported)?;

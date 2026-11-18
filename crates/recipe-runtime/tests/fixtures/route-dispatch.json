@@ -1,0 +1,488 @@
+{
+  "locations": [
+    "depot",
+    "stock",
+    "workshop",
+    "lab",
+    "clinic",
+    "annex"
+  ],
+  "couriers": [
+    {
+      "id": "van-1",
+      "mode": "vehicle",
+      "depot": "depot",
+      "shift": {
+        "start": 0,
+        "end": 22
+      },
+      "capacity_kg": 5
+    },
+    {
+      "id": "bike-1",
+      "mode": "bicycle",
+      "depot": "depot",
+      "shift": {
+        "start": 0,
+        "end": 16
+      },
+      "capacity_kg": 1
+    }
+  ],
+  "shipments": [
+    {
+      "id": "annex-kit",
+      "pickup": {
+        "location": "stock",
+        "window": {
+          "start": 2,
+          "end": 3
+        },
+        "service_minutes": 1
+      },
+      "delivery": {
+        "location": "annex",
+        "window": {
+          "start": 10,
+          "end": 14
+        },
+        "service_minutes": 1
+      },
+      "weight_kg": 5,
+      "allowed_modes": [
+        "vehicle"
+      ]
+    },
+    {
+      "id": "lab-tote",
+      "pickup": {
+        "location": "stock",
+        "window": {
+          "start": 2,
+          "end": 5
+        },
+        "service_minutes": 1
+      },
+      "delivery": {
+        "location": "lab",
+        "window": {
+          "start": 5,
+          "end": 8
+        },
+        "service_minutes": 1
+      },
+      "weight_kg": 2,
+      "allowed_modes": [
+        "vehicle"
+      ]
+    },
+    {
+      "id": "clinic-tote",
+      "pickup": {
+        "location": "workshop",
+        "window": {
+          "start": 3,
+          "end": 6
+        },
+        "service_minutes": 1
+      },
+      "delivery": {
+        "location": "clinic",
+        "window": {
+          "start": 7,
+          "end": 10
+        },
+        "service_minutes": 1
+      },
+      "weight_kg": 3,
+      "allowed_modes": [
+        "vehicle"
+      ]
+    },
+    {
+      "id": "workshop-envelope",
+      "pickup": {
+        "location": "stock",
+        "window": {
+          "start": 1,
+          "end": 5
+        },
+        "service_minutes": 1
+      },
+      "delivery": {
+        "location": "workshop",
+        "window": {
+          "start": 4,
+          "end": 7
+        },
+        "service_minutes": 1
+      },
+      "weight_kg": 1,
+      "allowed_modes": [
+        "bicycle"
+      ]
+    }
+  ],
+  "travel_legs": [
+    {
+      "mode": "vehicle",
+      "from": "depot",
+      "to": "stock",
+      "minutes": 1
+    },
+    {
+      "mode": "vehicle",
+      "from": "depot",
+      "to": "workshop",
+      "minutes": 2
+    },
+    {
+      "mode": "vehicle",
+      "from": "depot",
+      "to": "lab",
+      "minutes": 3
+    },
+    {
+      "mode": "vehicle",
+      "from": "depot",
+      "to": "clinic",
+      "minutes": 4
+    },
+    {
+      "mode": "vehicle",
+      "from": "depot",
+      "to": "annex",
+      "minutes": 8
+    },
+    {
+      "mode": "vehicle",
+      "from": "stock",
+      "to": "depot",
+      "minutes": 1
+    },
+    {
+      "mode": "vehicle",
+      "from": "stock",
+      "to": "workshop",
+      "minutes": 1
+    },
+    {
+      "mode": "vehicle",
+      "from": "stock",
+      "to": "lab",
+      "minutes": 2
+    },
+    {
+      "mode": "vehicle",
+      "from": "stock",
+      "to": "clinic",
+      "minutes": 3
+    },
+    {
+      "mode": "vehicle",
+      "from": "stock",
+      "to": "annex",
+      "minutes": 7
+    },
+    {
+      "mode": "vehicle",
+      "from": "workshop",
+      "to": "depot",
+      "minutes": 2
+    },
+    {
+      "mode": "vehicle",
+      "from": "workshop",
+      "to": "stock",
+      "minutes": 1
+    },
+    {
+      "mode": "vehicle",
+      "from": "workshop",
+      "to": "lab",
+      "minutes": 1
+    },
+    {
+      "mode": "vehicle",
+      "from": "workshop",
+      "to": "clinic",
+      "minutes": 2
+    },
+    {
+      "mode": "vehicle",
+      "from": "workshop",
+      "to": "annex",
+      "minutes": 6
+    },
+    {
+      "mode": "vehicle",
+      "from": "lab",
+      "to": "depot",
+      "minutes": 3
+    },
+    {
+      "mode": "vehicle",
+      "from": "lab",
+      "to": "stock",
+      "minutes": 2
+    },
+    {
+      "mode": "vehicle",
+      "from": "lab",
+      "to": "workshop",
+      "minutes": 1
+    },
+    {
+      "mode": "vehicle",
+      "from": "lab",
+      "to": "clinic",
+      "minutes": 1
+    },
+    {
+      "mode": "vehicle",
+      "from": "lab",
+      "to": "annex",
+      "minutes": 5
+    },
+    {
+      "mode": "vehicle",
+      "from": "clinic",
+      "to": "depot",
+      "minutes": 4
+    },
+    {
+      "mode": "vehicle",
+      "from": "clinic",
+      "to": "stock",
+      "minutes": 3
+    },
+    {
+      "mode": "vehicle",
+      "from": "clinic",
+      "to": "workshop",
+      "minutes": 2
+    },
+    {
+      "mode": "vehicle",
+      "from": "clinic",
+      "to": "lab",
+      "minutes": 1
+    },
+    {
+      "mode": "vehicle",
+      "from": "clinic",
+      "to": "annex",
+      "minutes": 4
+    },
+    {
+      "mode": "vehicle",
+      "from": "annex",
+      "to": "depot",
+      "minutes": 8
+    },
+    {
+      "mode": "vehicle",
+      "from": "annex",
+      "to": "stock",
+      "minutes": 7
+    },
+    {
+      "mode": "vehicle",
+      "from": "annex",
+      "to": "workshop",
+      "minutes": 6
+    },
+    {
+      "mode": "vehicle",
+      "from": "annex",
+      "to": "lab",
+      "minutes": 5
+    },
+    {
+      "mode": "vehicle",
+      "from": "annex",
+      "to": "clinic",
+      "minutes": 4
+    },
+    {
+      "mode": "bicycle",
+      "from": "depot",
+      "to": "stock",
+      "minutes": 2
+    },
+    {
+      "mode": "bicycle",
+      "from": "depot",
+      "to": "workshop",
+      "minutes": 4
+    },
+    {
+      "mode": "bicycle",
+      "from": "depot",
+      "to": "lab",
+      "minutes": 6
+    },
+    {
+      "mode": "bicycle",
+      "from": "depot",
+      "to": "clinic",
+      "minutes": 8
+    },
+    {
+      "mode": "bicycle",
+      "from": "depot",
+      "to": "annex",
+      "minutes": 16
+    },
+    {
+      "mode": "bicycle",
+      "from": "stock",
+      "to": "depot",
+      "minutes": 2
+    },
+    {
+      "mode": "bicycle",
+      "from": "stock",
+      "to": "workshop",
+      "minutes": 2
+    },
+    {
+      "mode": "bicycle",
+      "from": "stock",
+      "to": "lab",
+      "minutes": 4
+    },
+    {
+      "mode": "bicycle",
+      "from": "stock",
+      "to": "clinic",
+      "minutes": 6
+    },
+    {
+      "mode": "bicycle",
+      "from": "stock",
+      "to": "annex",
+      "minutes": 14
+    },
+    {
+      "mode": "bicycle",
+      "from": "workshop",
+      "to": "depot",
+      "minutes": 4
+    },
+    {
+      "mode": "bicycle",
+      "from": "workshop",
+      "to": "stock",
+      "minutes": 2
+    },
+    {
+      "mode": "bicycle",
+      "from": "workshop",
+      "to": "lab",
+      "minutes": 2
+    },
+    {
+      "mode": "bicycle",
+      "from": "workshop",
+      "to": "clinic",
+      "minutes": 4
+    },
+    {
+      "mode": "bicycle",
+      "from": "workshop",
+      "to": "annex",
+      "minutes": 12
+    },
+    {
+      "mode": "bicycle",
+      "from": "lab",
+      "to": "depot",
+      "minutes": 6
+    },
+    {
+      "mode": "bicycle",
+      "from": "lab",
+      "to": "stock",
+      "minutes": 4
+    },
+    {
+      "mode": "bicycle",
+      "from": "lab",
+      "to": "workshop",
+      "minutes": 2
+    },
+    {
+      "mode": "bicycle",
+      "from": "lab",
+      "to": "clinic",
+      "minutes": 2
+    },
+    {
+      "mode": "bicycle",
+      "from": "lab",
+      "to": "annex",
+      "minutes": 10
+    },
+    {
+      "mode": "bicycle",
+      "from": "clinic",
+      "to": "depot",
+      "minutes": 8
+    },
+    {
+      "mode": "bicycle",
+      "from": "clinic",
+      "to": "stock",
+      "minutes": 6
+    },
+    {
+      "mode": "bicycle",
+      "from": "clinic",
+      "to": "workshop",
+      "minutes": 4
+    },
+    {
+      "mode": "bicycle",
+      "from": "clinic",
+      "to": "lab",
+      "minutes": 2
+    },
+    {
+      "mode": "bicycle",
+      "from": "clinic",
+      "to": "annex",
+      "minutes": 8
+    },
+    {
+      "mode": "bicycle",
+      "from": "annex",
+      "to": "depot",
+      "minutes": 16
+    },
+    {
+      "mode": "bicycle",
+      "from": "annex",
+      "to": "stock",
+      "minutes": 14
+    },
+    {
+      "mode": "bicycle",
+      "from": "annex",
+      "to": "workshop",
+      "minutes": 12
+    },
+    {
+      "mode": "bicycle",
+      "from": "annex",
+      "to": "lab",
+      "minutes": 10
+    },
+    {
+      "mode": "bicycle",
+      "from": "annex",
+      "to": "clinic",
+      "minutes": 8
+    }
+  ]
+}
