@@ -126,3 +126,7 @@ Generate advisory DNS weights for a permitted region and allocate additional
 load among healthy backends with room. Both functions report exclusions; the
 backend planner also exposes unserved demand. They do not connect to or change
 live resources. See [the traffic placement guide](docs/traffic-placement.md).
+
+## Maintenance package
+
+Run the [source-neutral maintenance example](examples/maintenance-package/README.md) from a versioned XML package. CSV and connector-style records share one typed input contract; exact acceptance checks both cost and delay objectives.
