@@ -13,6 +13,14 @@ pub fn verify_solution(
     solution: &Solution,
 ) -> Result<(), SolutionValidationError> {
     validate(problem).map_err(SolutionValidationError::InvalidProblem)?;
+    verify_validated_solution(problem, solution)
+}
+
+/// Verifies the assignment. The caller must have validated the unchanged problem.
+pub(super) fn verify_validated_solution(
+    problem: &Problem,
+    solution: &Solution,
+) -> Result<(), SolutionValidationError> {
     let values = &solution.values;
     if values.len() != problem.variables.len() {
         return Err(SolutionValidationError::WrongValueCount);

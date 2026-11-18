@@ -1,5 +1,8 @@
+use super::{
+    resource_load_totals::ResourceLoadTotals, solution_validation::verify_validated_solution,
+};
 use crate::module::search_scoring::candidate_penalty;
-use crate::{Error, Problem, Score, Solution, validate, verify_solution};
+use crate::{Error, Problem, Score, Solution, validate};
 
 /// Finds the best hard-feasible assignment in declared variable and domain order.
 ///
@@ -24,6 +27,7 @@ pub fn solve(problem: &Problem, max_evaluations: u64) -> Result<Option<Solution>
     let mut positions = vec![0_usize; problem.variables.len()];
     let mut best: Option<(Vec<i64>, i128)> = None;
     let mut evaluated = 0_u64;
+    let mut resource_loads = ResourceLoadTotals::default();
 
     loop {
         for (index, variable) in problem.variables.iter().enumerate() {
@@ -31,7 +35,7 @@ pub fn solve(problem: &Problem, max_evaluations: u64) -> Result<Option<Solution>
         }
 
         evaluated += 1;
-        if let Some(penalty) = candidate_penalty(problem, &values)
+        if let Some(penalty) = candidate_penalty(problem, &values, &mut resource_loads)
             && best.as_ref().is_none_or(|(_, best)| penalty < *best)
         {
             best = Some((values.clone(), penalty));
@@ -62,7 +66,7 @@ pub fn solve(problem: &Problem, max_evaluations: u64) -> Result<Option<Solution>
         score: Score { hard: 0, soft },
         evaluated,
     };
-    verify_solution(problem, &solution).map_err(|_| Error::InvalidSolution)?;
+    verify_validated_solution(problem, &solution).map_err(|_| Error::InvalidSolution)?;
 
     Ok(Some(solution))
 }

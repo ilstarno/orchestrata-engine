@@ -1,14 +1,18 @@
 use super::{
     count_value_distance::distance, precedence_shortfall::shortfall,
-    resource_capacity_evaluation::exceeds_capacity,
+    resource_load_totals::ResourceLoadTotals,
 };
 use crate::{Constraint, CountValueTier, Problem};
 
-pub(super) fn candidate_penalty(problem: &Problem, values: &[i64]) -> Option<i128> {
+pub(super) fn candidate_penalty(
+    problem: &Problem,
+    values: &[i64],
+    resource_loads: &mut ResourceLoadTotals,
+) -> Option<i128> {
     if problem
         .constraints
         .iter()
-        .any(|rule| violates_hard_rule(rule, values))
+        .any(|rule| violates_hard_rule(rule, values, resource_loads))
     {
         return None;
     }
@@ -46,7 +50,11 @@ pub(super) fn candidate_penalty(problem: &Problem, values: &[i64]) -> Option<i12
     )
 }
 
-fn violates_hard_rule(constraint: &Constraint, values: &[i64]) -> bool {
+fn violates_hard_rule(
+    constraint: &Constraint,
+    values: &[i64],
+    resource_loads: &mut ResourceLoadTotals,
+) -> bool {
     match constraint {
         Constraint::CountValue {
             variables,
@@ -87,7 +95,10 @@ fn violates_hard_rule(constraint: &Constraint, values: &[i64]) -> bool {
             super::no_overlap::has_overlap(intervals, |i| values[i])
         }
         Constraint::ResourceCapacity { items, limits } => {
-            exceeds_capacity(items, limits, |index| values[index])
+            resource_loads.collect(items, |index| values[index]);
+            limits
+                .iter()
+                .any(|limit| resource_loads.overload(limit) != 0)
         }
         Constraint::PreferValue { .. } => false,
     }
