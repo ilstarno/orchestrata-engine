@@ -32,3 +32,32 @@ pub(crate) fn execution_penalty(id: &str, path: &PackagePath, bytes: &[u8]) -> E
     field(&mut h, bytes);
     ExecutionIdentity(h.finalize().into())
 }
+
+pub(crate) fn execution_route(id: &str, path: &PackagePath, bytes: &[u8]) -> ExecutionIdentity {
+    let mut h = Sha256::new();
+    h.update(b"orcpkg-execution-route-dispatch-v1\0");
+    field(&mut h, id.as_bytes());
+    field(&mut h, path.as_str().as_bytes());
+    field(&mut h, bytes);
+    ExecutionIdentity(h.finalize().into())
+}
+pub(crate) fn route_input(bytes: &[u8]) -> crate::InputIdentity {
+    let mut h = Sha256::new();
+    h.update(b"orcpkg-route-input-v1\0");
+    field(&mut h, bytes);
+    crate::InputIdentity(h.finalize().into())
+}
+pub(crate) fn route_request(
+    content: ContentIdentity,
+    execution: ExecutionIdentity,
+    input: crate::InputIdentity,
+    budget: u32,
+) -> crate::RequestIdentity {
+    let mut h = Sha256::new();
+    h.update(b"orcpkg-route-request-v1\0");
+    h.update(content.0);
+    h.update(execution.0);
+    h.update(input.0);
+    h.update(budget.to_be_bytes());
+    crate::RequestIdentity(h.finalize().into())
+}

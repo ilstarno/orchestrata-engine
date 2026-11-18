@@ -42,3 +42,15 @@ mod compiled_penalty_package;
 mod penalty_package_solution;
 pub use compiled_penalty_package::CompiledPenaltyPackage;
 pub use penalty_package_solution::PenaltyPackageSolution;
+
+mod input_identity;
+pub use input_identity::InputIdentity;
+
+mod request_identity;
+pub use request_identity::RequestIdentity;
+
+mod compiled_route_package;
+pub use compiled_route_package::CompiledRoutePackage;
+
+mod route_package_solution;
+pub use route_package_solution::RoutePackageSolution;
