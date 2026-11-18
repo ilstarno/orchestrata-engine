@@ -1,0 +1,7 @@
+TEST FIXTURE ONLY — not a catalog publication or verified publisher declaration.
+Maintenance models are adaptations used to exercise the Apache-2.0 Orchestrata Engine mathematical runtime. The independent acceptance fixture supplied the two model variants and synthetic inputs/expected results. Changes here add a package manifest, local license wrapper and identity vectors; executable model bytes are unchanged from that acceptance fixture.
+Upstream Engine base: c9f04521e121bf5348eee83d38bb949708ff2728.
+Upstream runtime change: 2485fdf (Add bounded mathematical XML assignment runtime).
+The upstream LICENSE is retained verbatim as the decoded English text in terms.xml and as LICENSE.Apache-2.0.txt. No tracked upstream NOTICE file was present at this base. The upstream license includes its standard appendix placeholders; these are not asserted copyright-owner names.
+Publisher unspecified is a fixture marker, not a natural person's name, authentication claim, or evidence of ownership. A real catalog publisher/author must be established separately before publication.
+Display metadata is English and Albanian; license terms are English only.

@@ -1,0 +1,25 @@
+{
+  "orders": [
+    {"key": "cooling-loop"},
+    {"key": "transfer-pump"},
+    {"key": "fire-panel"},
+    {"key": "meter-inspection"},
+    {"key": "isolation-test"},
+    {"key": "lift-controller"}
+  ],
+  "crew": [
+    {"key": "mech-east", "slots": 2, "active": true},
+    {"key": "mech-west", "slots": 1, "active": true},
+    {"key": "safety-day", "slots": 1, "active": true},
+    {"key": "hv-standby", "slots": 1, "active": false}
+  ],
+  "options": [
+    {"task": "cooling-loop", "person": "mech-east", "price": 3, "delay": 18},
+    {"task": "cooling-loop", "person": "mech-west", "price": 9, "delay": 2},
+    {"task": "transfer-pump", "person": "mech-east", "price": 1, "delay": 3},
+    {"task": "transfer-pump", "person": "mech-west", "price": 2, "delay": 21},
+    {"task": "fire-panel", "person": "safety-day", "price": 9, "delay": 1},
+    {"task": "meter-inspection", "person": "safety-day", "price": 1, "delay": 10},
+    {"task": "isolation-test", "person": "hv-standby", "price": 0, "delay": 0}
+  ]
+}

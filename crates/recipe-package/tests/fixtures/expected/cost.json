@@ -1,0 +1,1 @@
+{"assigned":3,"minimized_edge_sum":6,"assignments":[{"item_id":"cooling-loop","resource_id":"mech-east"},{"item_id":"transfer-pump","resource_id":"mech-west"},{"item_id":"fire-panel","resource_id":null},{"item_id":"meter-inspection","resource_id":"safety-day"},{"item_id":"isolation-test","resource_id":null},{"item_id":"lift-controller","resource_id":null}]}

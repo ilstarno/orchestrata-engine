@@ -1,0 +1,15 @@
+<recipe-package format-version="1" id="maintenance-allocation" version="1.0.0" default-locale="en" default-entrypoint="cost">
+  <author>Synthetic test fixture (publisher unspecified)</author>
+  <license expression="Apache-2.0" terms="legal/terms.xml" />
+  <distribution tier="free" />
+  <translations>
+    <translation locale="en"><title>Daily maintenance allocation</title><description>Assign available technicians to eligible maintenance work within their capacity. Choose the lowest cost or shortest delay after covering as many orders as possible.</description></translation>
+    <translation locale="sq"><title>Shpërndarja ditore e punëve të mirëmbajtjes</title><description>Caktoni teknikët e disponueshëm për punët e përshtatshme të mirëmbajtjes, duke respektuar kapacitetin e tyre. Zgjidhni koston më të ulët ose vonesën më të shkurtër pasi të mbulohen sa më shumë kërkesa.</description></translation>
+  </translations>
+  <assets>
+    <asset path="legal/terms.xml" kind="terms" bytes="11409" sha256="5a89b0d01c6c8e433d966f2b17741059e33300444cc959354e043788706419c2" />
+    <asset path="models/maintenance-cost.xml" kind="model" bytes="1072" sha256="da0e64f73894eb94294b1ba92cba0635dff6a3bab8a0fedf4c3aa82a417f9d3c" />
+    <asset path="models/maintenance-delay.xml" kind="model" bytes="1072" sha256="d210a533e9690e9015e3974a682f30d6ad4860fda698f3d89e82bc8c71b9255e" />
+  </assets>
+  <entrypoints><entrypoint id="cost" model="models/maintenance-cost.xml" /><entrypoint id="delay" model="models/maintenance-delay.xml" /></entrypoints>
+</recipe-package>
