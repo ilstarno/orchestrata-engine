@@ -1,0 +1,13 @@
+{
+  "trailers": [
+    {"id": "t1", "temperature": "cold", "interface": "A"},
+    {"id": "t2", "temperature": "cold", "interface": "A"},
+    {"id": "t3", "temperature": "ambient", "interface": "A"},
+    {"id": "t4", "temperature": "ambient", "interface": "B"}
+  ],
+  "doors": [
+    {"id": "d1", "temperature": "cold", "interface": "A", "capacity": 1, "available": true},
+    {"id": "d2", "temperature": "cold", "interface": "A", "capacity": 1, "available": true},
+    {"id": "d3", "temperature": "ambient", "interface": "B", "capacity": 2, "available": true}
+  ]
+}

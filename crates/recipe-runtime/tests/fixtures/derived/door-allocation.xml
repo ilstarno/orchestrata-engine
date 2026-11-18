@@ -1,0 +1,27 @@
+<model version="3" id="single-window-allocation">
+  <inputs>
+    <records name="loads" field="trailers">
+      <field name="id" type="id"/>
+      <field name="temperature" type="id"/>
+      <field name="interface" type="id"/>
+    </records>
+    <records name="slots" field="doors">
+      <field name="id" type="id"/>
+      <field name="temperature" type="id"/>
+      <field name="interface" type="id"/>
+      <field name="capacity" type="u32"/>
+      <field name="available" type="bool"/>
+    </records>
+  </inputs>
+  <parameters/>
+  <decision name="allocation" kind="reference" items="loads" resources="slots" domain="derived" item-id="id" resource-id="id" nullable="true" pair-limit="12" comparison-limit="24">
+    <equal item-field="temperature" resource-field="temperature"/>
+  </decision>
+  <constraints>
+    <capacity variable="allocation" field="capacity"/>
+    <availability variable="allocation" field="available" value="true"/>
+  </constraints>
+  <objectives order="lexicographic">
+    <maximize variable="allocation" operator="assigned-count"/>
+  </objectives>
+</model>

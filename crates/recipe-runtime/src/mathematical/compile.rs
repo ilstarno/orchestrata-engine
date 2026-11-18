@@ -1,3 +1,4 @@
+use super::assignment_domain::AssignmentDomain;
 use super::{
     CompiledModel, ModelError, ModelSpec, bound_assignment::BoundAssignment,
     constraint::Constraint, coverage_goal::CoverageGoal, id_field::IdField, objective::Objective,
@@ -63,30 +64,37 @@ pub(super) fn compile_bound(
         [Objective::MinTotalCost { service_field, .. }] => Some(service_field),
         _ => return Err(ModelError::UnsupportedSemantics),
     };
-    let mut domains = vec![Vec::new(); items.len()];
-    let mut seen = BTreeSet::new();
-    for edge in tables
-        .get(&d.domain)
-        .ok_or(ModelError::UnsupportedSemantics)?
-    {
-        let item = d.edge_item.read(edge)?;
-        let resource = d.edge_resource.read(edge)?;
-        let i = item_ids
-            .iter()
-            .position(|id| id == item)
-            .ok_or(ModelError::InvalidInput)?;
-        let r = resource_ids
-            .iter()
-            .position(|id| id == resource)
-            .ok_or(ModelError::InvalidInput)?;
-        if !seen.insert((i, r)) {
-            return Err(ModelError::InvalidInput);
+    let domains = match &d.domain {
+        AssignmentDomain::Derived(domain) => domain.derive(items, resources)?,
+        AssignmentDomain::Supplied {
+            table,
+            item: edge_item,
+            resource: edge_resource,
+        } => {
+            let mut domains = vec![Vec::new(); items.len()];
+            let mut seen = BTreeSet::new();
+            for edge in tables.get(table).ok_or(ModelError::UnsupportedSemantics)? {
+                let item = edge_item.read(edge)?;
+                let resource = edge_resource.read(edge)?;
+                let i = item_ids
+                    .iter()
+                    .position(|id| id == item)
+                    .ok_or(ModelError::InvalidInput)?;
+                let r = resource_ids
+                    .iter()
+                    .position(|id| id == resource)
+                    .ok_or(ModelError::InvalidInput)?;
+                if !seen.insert((i, r)) {
+                    return Err(ModelError::InvalidInput);
+                }
+                domains[i].push(WorkerCost {
+                    worker: r,
+                    cost: cost.map(|f| f.read(edge)).transpose()?.unwrap_or(0),
+                });
+            }
+            domains
         }
-        domains[i].push(WorkerCost {
-            worker: r,
-            cost: cost.map(|f| f.read(edge)).transpose()?.unwrap_or(0),
-        });
-    }
+    };
     let penalties = match spec.objectives.as_slice() {
         [Objective::MinTotalCost { penalty_field, .. }] => items
             .iter()
