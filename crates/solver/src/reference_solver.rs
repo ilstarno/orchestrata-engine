@@ -1,6 +1,7 @@
+use super::solution_validation::verify_validated_solution;
 use super::{candidate_scratch::CandidateScratch, exact_assignments::ExactAssignments};
 use crate::module::search_scoring::candidate_penalty;
-use crate::{Error, Problem, Score, Solution, validate, verify_solution};
+use crate::{Error, Problem, Score, Solution, validate};
 
 /// Finds the best hard-feasible assignment in declared variable and domain order.
 ///
@@ -56,7 +57,7 @@ pub(crate) fn solve_validated(
         score: Score { hard: 0, soft },
         evaluated,
     };
-    verify_solution(problem, &solution).map_err(|_| Error::InvalidSolution)?;
+    verify_validated_solution(problem, &solution).map_err(|_| Error::InvalidSolution)?;
 
     Ok(Some(solution))
 }

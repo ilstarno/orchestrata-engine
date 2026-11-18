@@ -395,3 +395,46 @@ fn resource_scratch_matches_independent_assignment_and_score_oracles() {
         assert_eq!(solve(&problem, 8), Ok(expected), "seed {seed}");
     }
 }
+
+#[test]
+fn public_verification_checks_invalid_input_before_claimed_assignment() {
+    let invalid = Problem {
+        variables: vec![variable("box", &[1])],
+        constraints: vec![capacity(vec![item(0, 1)], vec![])],
+    };
+    let forged = Solution {
+        values: vec![],
+        score: Score { hard: 0, soft: 0 },
+        evaluated: 1,
+    };
+    assert_eq!(
+        verify_solution(&invalid, &forged),
+        Err(SolutionValidationError::InvalidProblem(
+            Error::InvalidResourceCapacity(ResourceCapacityError::MissingLimit(1))
+        ))
+    );
+    assert_eq!(
+        verify_solution(&cargo_fixture(), &forged),
+        Err(SolutionValidationError::WrongValueCount)
+    );
+}
+
+#[test]
+fn validated_exact_path_still_returns_a_checked_solution() {
+    let p = cargo_fixture();
+    let raw = solve(&p, 4).unwrap().unwrap();
+    let prepared = orchestrata_solver::PreparedProblem::prepare(p.clone())
+        .unwrap()
+        .solve(4)
+        .unwrap()
+        .unwrap();
+    assert_eq!(raw, prepared);
+    verify_solution(&p, &raw).unwrap();
+    assert_eq!(solve(&p, 3), Err(Error::TooManyAssignments));
+    assert_eq!(
+        orchestrata_solver::PreparedProblem::prepare(p)
+            .unwrap()
+            .solve(3),
+        Err(Error::TooManyAssignments)
+    );
+}
