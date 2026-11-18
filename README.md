@@ -120,3 +120,7 @@ or finishing with unassigned shipments is not proof of infeasibility, and a
 complete pass does not prove optimality. Oversized inputs and an oversized
 budget return errors separately from invalid routing problems. This constructor
 is a Rust API; the native V1 JSON solve endpoint and SDKs are unchanged by it.
+
+## Maintenance package
+
+Run the [source-neutral maintenance example](examples/maintenance-package/README.md) from a versioned XML package. CSV and connector-style records share one typed input contract; exact acceptance checks both cost and delay objectives.
