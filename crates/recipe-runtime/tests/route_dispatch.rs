@@ -77,3 +77,62 @@ fn strict_typed_records_and_no_guessed_travel() {
         .is_err()
     );
 }
+
+#[test]
+fn coverage_certificate_replays_fixture_and_preserves_output() {
+    use orchestrata_recipe_runtime::route_dispatch::{
+        CoverageOutcome, MAX_COVERAGE_WORK, certify_route_coverage,
+    };
+    for (model, expected_coverage) in [
+        (MODEL.to_owned(), 2),
+        (
+            MODEL.replace("input-order-insertion", "two-order-insertion"),
+            3,
+        ),
+    ] {
+        let spec = parse_route_model(&model).unwrap();
+        let compiled = compile_route_model(&spec, DATA, 200).unwrap();
+        let mut result = solve_route_model(compile_route_model(&spec, DATA, 200).unwrap()).unwrap();
+        let before = serde_json::to_vec(&result).unwrap();
+        let CoverageOutcome::Complete(c) =
+            certify_route_coverage(&compiled, &result, MAX_COVERAGE_WORK).unwrap()
+        else {
+            panic!("complete")
+        };
+        assert_eq!(
+            (c.upper_bound, c.incumbent_covered, c.maximum_coverage),
+            (3, expected_coverage, expected_coverage == 3)
+        );
+        assert_eq!(before, serde_json::to_vec(&result).unwrap());
+        for budget in 0..=c.work {
+            let attempt = certify_route_coverage(&compiled, &result, budget).unwrap();
+            if budget < c.work {
+                assert_eq!(attempt, CoverageOutcome::Incomplete { work: budget });
+            } else {
+                assert_eq!(attempt, CoverageOutcome::Complete(c.clone()));
+            }
+        }
+
+        assert!(matches!(
+            certify_route_coverage(&compiled, &result, 0).unwrap(),
+            CoverageOutcome::Incomplete { work: 0 }
+        ));
+        result.routes[0].visits[0].service_end_minute += 1;
+        assert!(certify_route_coverage(&compiled, &result, MAX_COVERAGE_WORK).is_err());
+    }
+}
+
+#[test]
+fn coverage_rejects_invalid_partition_and_replays_direct_arcs() {
+    use orchestrata_recipe_runtime::route_dispatch::{MAX_COVERAGE_WORK, certify_route_coverage};
+    let spec = parse_route_model(MODEL).unwrap();
+    let c = compile_route_model(&spec, DATA, 200).unwrap();
+    let mut result = solve_route_model(compile_route_model(&spec, DATA, 200).unwrap()).unwrap();
+    result.unassigned.push(result.unassigned[0].clone());
+    assert!(certify_route_coverage(&c, &result, MAX_COVERAGE_WORK).is_err());
+    result.unassigned.pop();
+    result.routes[0].visits[0].arrival_minute = 0;
+    result.routes[0].visits[0].service_start_minute = 2;
+    result.routes[0].visits[0].service_end_minute = 3;
+    assert!(certify_route_coverage(&c, &result, MAX_COVERAGE_WORK).is_err());
+}
