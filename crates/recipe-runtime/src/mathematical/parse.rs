@@ -2,6 +2,7 @@ use super::{
     ModelError, ModelSpec, constraint::Constraint, decision::Decision, field_type::FieldType,
     input_binding::InputBinding, objective::Objective, xml_helpers::*,
 };
+use super::{boolean_field::BooleanField, id_field::IdField, unsigned_field::UnsignedField};
 use roxmltree::{Document, ParsingOptions};
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -105,34 +106,33 @@ pub(super) fn parse_version(xml: &str, version: &str) -> Result<ModelSpec, Model
     if decision.attribute("kind") != Some("reference") {
         return Err(ModelError::UnsupportedSemantics);
     }
-    let d = Decision {
-        name: attr(decision, "name")?,
-        items: attr(decision, "items")?,
-        resources: attr(decision, "resources")?,
-        domain: attr(decision, "domain")?,
-        item_id: attr(decision, "item-id")?,
-        resource_id: attr(decision, "resource-id")?,
-        edge_item: attr(decision, "edge-item")?,
-        edge_resource: attr(decision, "edge-resource")?,
-        nullable: boolean(
-            decision
-                .attribute("nullable")
-                .ok_or(ModelError::InvalidXml)?,
-        )?,
-    };
-    if BTreeSet::from([&d.items, &d.resources, &d.domain]).len() != 3
-        || d.edge_item == d.edge_resource
-    {
+    let name = attr(decision, "name")?;
+    let items = attr(decision, "items")?;
+    let resources = attr(decision, "resources")?;
+    let domain = attr(decision, "domain")?;
+    let item_id = attr(decision, "item-id")?;
+    let resource_id = attr(decision, "resource-id")?;
+    let edge_item = attr(decision, "edge-item")?;
+    let edge_resource = attr(decision, "edge-resource")?;
+    let nullable = boolean(
+        decision
+            .attribute("nullable")
+            .ok_or(ModelError::InvalidXml)?,
+    )?;
+    if BTreeSet::from([&items, &resources, &domain]).len() != 3 || edge_item == edge_resource {
         return Err(ModelError::UnsupportedSemantics);
     }
-    for (table, field, ty) in [
-        (&d.items, &d.item_id, FieldType::Id),
-        (&d.resources, &d.resource_id, FieldType::Id),
-        (&d.domain, &d.edge_item, FieldType::Id),
-        (&d.domain, &d.edge_resource, FieldType::Id),
-    ] {
-        field_type(&bindings, table, field, ty)?;
-    }
+    let d = Decision {
+        name,
+        item_id: IdField::bind(&bindings, &items, item_id)?,
+        resource_id: IdField::bind(&bindings, &resources, resource_id)?,
+        edge_item: IdField::bind(&bindings, &domain, edge_item)?,
+        edge_resource: IdField::bind(&bindings, &domain, edge_resource)?,
+        items,
+        resources,
+        domain,
+        nullable,
+    };
     tag(constraints, "constraints", &[])?;
     let mut rules = Vec::new();
     for c in children(constraints)? {
@@ -152,7 +152,7 @@ pub(super) fn parse_version(xml: &str, version: &str) -> Result<ModelSpec, Model
                     },
                 )?;
                 let field = attr(c, "field")?;
-                field_type(&bindings, &d.resources, &field, FieldType::U32)?;
+                let field = UnsignedField::bind(&bindings, &d.resources, field)?;
                 let limit = if has_limit {
                     let key = attr(c, "limit")?;
                     used.insert(key.clone());
@@ -165,7 +165,7 @@ pub(super) fn parse_version(xml: &str, version: &str) -> Result<ModelSpec, Model
             "availability" => {
                 leaf(c, "availability", &["variable", "field", "value"])?;
                 let field = attr(c, "field")?;
-                field_type(&bindings, &d.resources, &field, FieldType::Bool)?;
+                let field = BooleanField::bind(&bindings, &d.resources, field)?;
                 rules.push(Constraint::Availability {
                     field,
                     value: boolean(c.attribute("value").ok_or(ModelError::InvalidXml)?)?,
@@ -212,8 +212,8 @@ pub(super) fn parse_version(xml: &str, version: &str) -> Result<ModelSpec, Model
                 let service_field = attr(o, "service-field")?;
                 let penalty_field = attr(o, "penalty-field")?;
                 let unit = attr(o, "unit")?;
-                field_type(&bindings, &d.domain, &service_field, FieldType::U32)?;
-                field_type(&bindings, &d.items, &penalty_field, FieldType::U32)?;
+                let service_field = UnsignedField::bind(&bindings, &d.domain, service_field)?;
+                let penalty_field = UnsignedField::bind(&bindings, &d.items, penalty_field)?;
                 goals.push(Objective::MinTotalCost {
                     service_field,
                     penalty_field,
@@ -227,7 +227,7 @@ pub(super) fn parse_version(xml: &str, version: &str) -> Result<ModelSpec, Model
             ("minimize", Some("edge-sum")) if version == "1" => {
                 leaf(o, "minimize", &["variable", "operator", "field"])?;
                 let f = attr(o, "field")?;
-                field_type(&bindings, &d.domain, &f, FieldType::U32)?;
+                let f = UnsignedField::bind(&bindings, &d.domain, f)?;
                 goals.push(Objective::MinEdgeSum(f));
             }
             _ => return Err(ModelError::UnsupportedSemantics),
@@ -250,15 +250,4 @@ pub(super) fn parse_version(xml: &str, version: &str) -> Result<ModelSpec, Model
         constraints: rules,
         objectives: goals,
     })
-}
-fn field_type(
-    inputs: &BTreeMap<String, InputBinding>,
-    table: &str,
-    field: &str,
-    ty: FieldType,
-) -> Result<(), ModelError> {
-    if inputs.get(table).and_then(|b| b.fields.get(field)) != Some(&ty) {
-        return Err(ModelError::UnsupportedSemantics);
-    }
-    Ok(())
 }

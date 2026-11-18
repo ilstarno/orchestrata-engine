@@ -1,0 +1,30 @@
+<model version="1" id="parcel-placement">
+  <inputs>
+    <records name="items" field="parcels">
+      <field name="tracking" type="id"/>
+    </records>
+    <records name="resources" field="lockers">
+      <field name="locker" type="id"/>
+      <field name="slots" type="u32"/>
+      <field name="open" type="bool"/>
+    </records>
+    <records name="edges" field="offers">
+      <field name="parcel" type="id"/>
+      <field name="destination" type="id"/>
+      <field name="fee" type="u32"/>
+    </records>
+  </inputs>
+  <parameters>
+    <parameter name="ceiling" type="u32" value="1"/>
+  </parameters>
+  <decision name="selection" kind="reference" items="items" resources="resources" domain="edges"
+    item-id="tracking" resource-id="locker" edge-item="parcel" edge-resource="destination" nullable="true"/>
+  <constraints>
+    <capacity variable="selection" field="slots" limit="ceiling"/>
+    <availability variable="selection" field="open" value="true"/>
+  </constraints>
+  <objectives order="lexicographic">
+    <maximize variable="selection" operator="assigned-count"/>
+    <minimize variable="selection" operator="edge-sum" field="fee"/>
+  </objectives>
+</model>

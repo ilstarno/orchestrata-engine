@@ -1,0 +1,44 @@
+{
+  "parcels": [
+    {
+      "tracking": "a"
+    },
+    {
+      "tracking": "b"
+    }
+  ],
+  "lockers": [
+    {
+      "locker": "x",
+      "slots": 2,
+      "open": true
+    },
+    {
+      "locker": "y",
+      "slots": 2,
+      "open": true
+    }
+  ],
+  "offers": [
+    {
+      "parcel": "a",
+      "destination": "x",
+      "fee": 0
+    },
+    {
+      "parcel": "a",
+      "destination": "y",
+      "fee": 7
+    },
+    {
+      "parcel": "b",
+      "destination": "x",
+      "fee": 6
+    },
+    {
+      "parcel": "b",
+      "destination": "y",
+      "fee": 1
+    }
+  ]
+}

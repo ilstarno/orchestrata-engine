@@ -1,0 +1,44 @@
+{
+  "documents": [
+    {
+      "document": "a"
+    },
+    {
+      "document": "b"
+    }
+  ],
+  "editors": [
+    {
+      "editor": "x",
+      "quota": 2,
+      "blocked": false
+    },
+    {
+      "editor": "y",
+      "quota": 2,
+      "blocked": false
+    }
+  ],
+  "permissions": [
+    {
+      "manuscript": "a",
+      "reviewer": "x",
+      "turnaround": 9
+    },
+    {
+      "manuscript": "a",
+      "reviewer": "y",
+      "turnaround": 0
+    },
+    {
+      "manuscript": "b",
+      "reviewer": "x",
+      "turnaround": 1
+    },
+    {
+      "manuscript": "b",
+      "reviewer": "y",
+      "turnaround": 8
+    }
+  ]
+}
