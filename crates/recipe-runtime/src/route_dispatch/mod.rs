@@ -33,3 +33,6 @@ pub use coverage_error::DispatchCoverageError;
 pub use orchestrata_solver::routing::coverage::{
     CoverageCertificate, CoverageOutcome, MAX_COVERAGE_WORK,
 };
+
+pub use coverage::certify_route_coverage_with_travel;
+pub use orchestrata_solver::routing::coverage::{TravelCoverageCertificate, TravelCoverageOutcome};

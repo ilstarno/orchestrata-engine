@@ -207,6 +207,27 @@ fn exact_small_nonmetric_directed_mixed_mode_cases() {
             }
         }
         let optimum = exact(&p, &t);
+        let stronger = strong(&p, &t);
+        assert!(
+            stronger.upper_bound >= optimum,
+            "travel bound below exact case {case}"
+        );
+        assert!(stronger.upper_bound <= stronger.base.upper_bound);
+        for (i, bound) in stronger.courier_bounds.iter().enumerate() {
+            let single = RoutingProblem {
+                couriers: vec![p.couriers[i]],
+                shipments: p.shipments.clone(),
+            };
+            assert!(
+                bound.capacity >= exact(&single, &t),
+                "courier relaxation underbound case {case}"
+            );
+        }
+
+        if stronger.maximum_coverage {
+            assert_eq!(stronger.incumbent_covered, optimum);
+        }
+
         let c = bound(&p, &t);
         assert!(
             c.upper_bound >= optimum,
@@ -357,6 +378,14 @@ fn largest_supported_instance_and_empty_problem_are_bounded() {
         panic!("empty completion")
     };
     assert_eq!((c.upper_bound, c.maximum_coverage), (0, true));
+    let TravelCoverageOutcome::Complete(stronger) =
+        certify_coverage_with_travel(&p, &[], MAX_COVERAGE_WORK, lookup).unwrap()
+    else {
+        panic!("bounded stronger completion")
+    };
+    assert_eq!(stronger.upper_bound, 32);
+    assert!(!stronger.maximum_coverage);
+    assert!(stronger.work <= MAX_COVERAGE_WORK);
     let mut oversized = p;
     oversized.shipments.push(oversized.shipments[0].clone());
     assert_eq!(
@@ -405,4 +434,126 @@ fn every_legal_two_job_order_can_prevent_a_false_conflict() {
         assert_eq!(c.upper_bound, 2);
         assert_eq!(c.cliques.len(), 2);
     }
+}
+
+fn strong(p: &RoutingProblem, t: &Travel) -> TravelCoverageCertificate {
+    let plan = construct_routes(p, 20_000, |m, f, z| t.get(&(m, f, z)).copied()).unwrap();
+    let TravelCoverageOutcome::Complete(c) =
+        certify_coverage_with_travel(p, &plan.routes, MAX_COVERAGE_WORK, |m, f, z| {
+            t.get(&(m, f, z)).copied()
+        })
+        .unwrap()
+    else {
+        panic!("complete travel bound")
+    };
+    assert!(verify_flow_witness(&c.travel));
+    let CoverageOutcome::Complete(base) =
+        certify_coverage(p, &plan.routes, MAX_COVERAGE_WORK, |m, f, z| {
+            t.get(&(m, f, z)).copied()
+        })
+        .unwrap()
+    else {
+        panic!("base")
+    };
+    assert_eq!(c.base, *base);
+    *c
+}
+
+#[test]
+fn cumulative_travel_limits_coverage_even_when_all_pairs_fit() {
+    let mode = CourierMode::Vehicle;
+    let p = RoutingProblem {
+        couriers: vec![courier(mode, 3, 1)],
+        shipments: (1..=3)
+            .map(|i| Shipment {
+                pickup: stop(i, 3, 0),
+                delivery: stop(i, 3, 0),
+                weight: 1,
+                allowed_modes: vec![mode],
+            })
+            .collect(),
+    };
+    let t: Travel = (0..4)
+        .flat_map(|a| {
+            (0..4)
+                .filter(move |&z| z != a)
+                .map(move |z| ((mode, LocationId(a), LocationId(z)), 1))
+        })
+        .collect();
+    let c = strong(&p, &t);
+    assert_eq!(exact(&p, &t), 2);
+    assert_eq!(c.base.upper_bound, 3);
+    assert_eq!(c.upper_bound, 2);
+    assert!(c.maximum_coverage);
+    assert_eq!(c.courier_bounds[0].distinct_nodes, vec![0, 1, 2, 3]);
+    assert_eq!(c.courier_bounds[0].travel_lower_bounds, vec![0, 2, 3, 4]);
+    let plan = construct_routes(&p, 20_000, |m, f, z| t.get(&(m, f, z)).copied()).unwrap();
+    for work in 0..c.work {
+        assert_eq!(
+            certify_coverage_with_travel(&p, &plan.routes, work, |m, f, z| t
+                .get(&(m, f, z))
+                .copied())
+            .unwrap(),
+            TravelCoverageOutcome::Incomplete { work }
+        );
+    }
+}
+
+#[test]
+fn shared_representatives_depot_jobs_zero_arcs_and_return_pickups_are_safe() {
+    let mode = CourierMode::Bicycle;
+    for (pickup, delivery) in [(1, 1), (0, 0), (1, 0), (0, 1)] {
+        let p = RoutingProblem {
+            couriers: vec![courier(mode, 2, 1)],
+            shipments: (0..3)
+                .map(|_| Shipment {
+                    pickup: stop(pickup, 2, 0),
+                    delivery: stop(delivery, 2, 0),
+                    weight: 1,
+                    allowed_modes: vec![mode],
+                })
+                .collect(),
+        };
+        let t = HashMap::from([
+            ((mode, LocationId(0), LocationId(1)), 1),
+            ((mode, LocationId(1), LocationId(0)), 1),
+        ]);
+        let c = strong(&p, &t);
+        assert!(c.upper_bound >= exact(&p, &t));
+        assert_eq!(
+            c.courier_bounds[0].distinct_nodes,
+            if pickup == 0 && delivery == 0 {
+                vec![0, 0, 0, 0]
+            } else {
+                vec![0, 1, 1, 1]
+            }
+        );
+        let zero = t.into_keys().map(|k| (k, 0)).collect();
+        let c = strong(&p, &zero);
+        assert_eq!(c.upper_bound, 3);
+        assert!(c.maximum_coverage);
+    }
+}
+
+#[test]
+fn travel_service_prefixes_preserve_wide_arithmetic() {
+    let mode = CourierMode::Walking;
+    let p = RoutingProblem {
+        couriers: vec![courier(mode, u64::MAX, 1)],
+        shipments: (0..2)
+            .map(|_| Shipment {
+                pickup: stop(0, u64::MAX, u64::MAX),
+                delivery: stop(0, u64::MAX, 0),
+                weight: 1,
+                allowed_modes: vec![mode],
+            })
+            .collect(),
+    };
+    let c = strong(&p, &Travel::new());
+    assert_eq!(c.upper_bound, 1);
+    assert!(c.maximum_coverage);
+    assert_eq!(
+        c.courier_bounds[0].service_prefixes,
+        vec![0, u128::from(u64::MAX), 2 * u128::from(u64::MAX)]
+    );
 }

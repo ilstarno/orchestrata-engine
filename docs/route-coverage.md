@@ -87,3 +87,52 @@ invalid replay, witness tampering and bounded completion at the input limit.
 Runtime/package tests reuse the synthetic dispatch fixture: its two-job baseline
 has an upper bound of three; its replayed three-job plan attains that coverage
 bound. Neither test makes a travel-time optimality claim.
+
+## Explicit cumulative-travel relaxation
+
+`CompiledRoutePackage::certify_coverage_with_travel` returns a separate
+`RoutePackageTravelCoverage`/`TravelCoverageOutcome`. The runtime and native
+counterparts are `certify_route_coverage_with_travel` and
+`coverage::certify_coverage_with_travel`. Existing certification methods, result
+types, commands and solve bytes retain their behavior.
+
+This method first performs the original certificate, including incumbent replay,
+then computes an additional courier-capacity flow bound. Its one deterministic
+budget includes the original work, a fresh directed shortest-path closure and
+all subsequent grouping, selection, distance, count and flow steps. Selection
+scans charge comparisons rather than using an uncounted sort. Bounded allocation,
+map/index operations and witness validation remain outside the primitive-work
+counter. It is not a wall-clock limit. An incomplete stronger check carries no
+partial optimality claim, even if the original check finished. Missing required
+closure distances or checked-arithmetic failure also return `Incomplete`.
+
+For each eligible job/courier pair, select one required representative location:
+delivery unless it is the depot, otherwise pickup. Jobs whose representative is
+the depot require no non-depot representative. Group the others by location.
+For each admitted count `k`, count depot-only jobs first and then the largest
+location multiplicities to obtain a lower bound `d` on distinct required nodes.
+Shared locations are counted once. All grouping uses only jobs eligible under
+the original optimistic single-job relaxation.
+
+For `d = 0`, the travel lower bound is zero. Otherwise it is the independently
+minimized depot-outbound distance plus independently minimized depot-return
+distance, plus `(d - 1)` times the minimum directed closure distance between
+distinct eligible representatives. For `d = 1` the between-node term is omitted.
+These minima need not belong to a compatible route: this deliberately makes the
+bound optimistic. Any real route has first visits to at least `d` distinct
+required nodes. In their original order, each intervening route segment costs
+at least its directed shortest-path distance. Nonnegative static travel and
+sequential service make the travel sum a valid lower bound.
+
+Add the `k` smallest eligible jobs' combined pickup/delivery service durations,
+independently of representative selection. A count whose optimistic travel plus
+service exceeds the supplied shift cannot be served. The remaining count bound
+becomes that courier's capacity in another inspectable matching/min-cut graph.
+The returned coverage upper bound is the minimum of this flow and the original
+certificate. The result exposes representative multiplicities, distance minima,
+service prefixes and per-count travel/distinct-node bounds for inspection.
+
+Only a separately replayed incumbent reaching the complete bound proves maximum
+coverage. There is still no travel-time optimality or infeasibility explanation
+for individual unassigned jobs. Unknown direct arcs never replace shortest-path
+reasoning; no external travel is fetched. All computations fully recompute.

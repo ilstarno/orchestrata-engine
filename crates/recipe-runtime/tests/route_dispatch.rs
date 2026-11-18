@@ -136,3 +136,37 @@ fn coverage_rejects_invalid_partition_and_replays_direct_arcs() {
     result.routes[0].visits[0].service_end_minute = 3;
     assert!(certify_route_coverage(&c, &result, MAX_COVERAGE_WORK).is_err());
 }
+
+#[test]
+fn stronger_certificate_is_explicit_and_preserves_original_result() {
+    use orchestrata_recipe_runtime::route_dispatch::{
+        CoverageOutcome, MAX_COVERAGE_WORK, TravelCoverageOutcome, certify_route_coverage,
+        certify_route_coverage_with_travel,
+    };
+    let spec =
+        parse_route_model(&MODEL.replace("input-order-insertion", "two-order-insertion")).unwrap();
+    let c = compile_route_model(&spec, DATA, 200).unwrap();
+    let mut result = solve_route_model(compile_route_model(&spec, DATA, 200).unwrap()).unwrap();
+    let before = serde_json::to_vec(&result).unwrap();
+    let CoverageOutcome::Complete(base) =
+        certify_route_coverage(&c, &result, MAX_COVERAGE_WORK).unwrap()
+    else {
+        panic!("base")
+    };
+    let TravelCoverageOutcome::Complete(stronger) =
+        certify_route_coverage_with_travel(&c, &result, MAX_COVERAGE_WORK).unwrap()
+    else {
+        panic!("stronger")
+    };
+    assert_eq!(stronger.base, *base);
+    assert_eq!(stronger.upper_bound, 3);
+    assert!(stronger.maximum_coverage);
+    assert!(stronger.work > base.work);
+    assert_eq!(before, serde_json::to_vec(&result).unwrap());
+    assert_eq!(
+        certify_route_coverage_with_travel(&c, &result, base.work).unwrap(),
+        TravelCoverageOutcome::Incomplete { work: base.work }
+    );
+    result.routes[0].visits[0].service_end_minute += 1;
+    assert!(certify_route_coverage_with_travel(&c, &result, MAX_COVERAGE_WORK).is_err());
+}

@@ -71,6 +71,10 @@ impl Relaxation {
             .expect("problem location");
         self.distances[m][i][j]
     }
+    pub fn shortest(&self, mode: CourierMode, from: LocationId, to: LocationId) -> Option<u128> {
+        let value = self.duration(mode, from, to);
+        (value != INF).then_some(value)
+    }
     pub fn feasible(
         &self,
         p: &RoutingProblem,

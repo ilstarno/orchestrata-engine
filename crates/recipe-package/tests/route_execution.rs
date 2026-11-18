@@ -82,3 +82,32 @@ fn opt_in_coverage_is_bound_to_the_compiled_package_and_snapshot() {
         (3, 3, true)
     );
 }
+
+#[test]
+fn stronger_package_certificate_retains_revision_and_input_identity() {
+    use orchestrata_recipe_runtime::route_dispatch::{MAX_COVERAGE_WORK, TravelCoverageOutcome};
+    let mut members = files();
+    asset(
+        &mut members,
+        "models/maintenance-cost.xml",
+        MODEL.as_bytes().to_vec(),
+    );
+    let package = load_package(&pack(&members, false, true)).unwrap();
+    let c = package.compile_route(None, DATA, 200).unwrap();
+    let solved = package
+        .compile_route(None, DATA, 200)
+        .unwrap()
+        .solve()
+        .unwrap();
+    let checked = c
+        .certify_coverage_with_travel(&solved.solution, MAX_COVERAGE_WORK)
+        .unwrap();
+    assert_eq!(checked.content_identity, solved.content_identity);
+    assert_eq!(checked.execution_identity, solved.execution_identity);
+    assert_eq!(checked.input_identity, solved.input_identity);
+    assert_eq!(checked.request_identity, solved.request_identity);
+    let TravelCoverageOutcome::Complete(cert) = checked.coverage else {
+        panic!("complete")
+    };
+    assert_eq!((cert.incumbent_covered, cert.upper_bound), (3, 3));
+}
