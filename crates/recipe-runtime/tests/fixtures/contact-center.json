@@ -1,0 +1,87 @@
+{
+  "requests": [
+    {
+      "id": "fraud",
+      "missed_service_cents": 10000
+    },
+    {
+      "id": "billing",
+      "missed_service_cents": 5000
+    },
+    {
+      "id": "routine",
+      "missed_service_cents": 100
+    },
+    {
+      "id": "language-support",
+      "missed_service_cents": 8000
+    },
+    {
+      "id": "outage",
+      "missed_service_cents": 6000
+    },
+    {
+      "id": "compliance",
+      "missed_service_cents": 7000
+    }
+  ],
+  "agents": [
+    {
+      "id": "generalist",
+      "capacity": 2,
+      "available": true
+    },
+    {
+      "id": "specialist",
+      "capacity": 1,
+      "available": true
+    },
+    {
+      "id": "language-agent",
+      "capacity": 1,
+      "available": false
+    },
+    {
+      "id": "overflow",
+      "capacity": 1,
+      "available": true
+    }
+  ],
+  "offers": [
+    {
+      "request_id": "fraud",
+      "agent_id": "generalist",
+      "service_cents": 100
+    },
+    {
+      "request_id": "billing",
+      "agent_id": "generalist",
+      "service_cents": 200
+    },
+    {
+      "request_id": "billing",
+      "agent_id": "specialist",
+      "service_cents": 300
+    },
+    {
+      "request_id": "routine",
+      "agent_id": "overflow",
+      "service_cents": 900
+    },
+    {
+      "request_id": "language-support",
+      "agent_id": "language-agent",
+      "service_cents": 100
+    },
+    {
+      "request_id": "outage",
+      "agent_id": "generalist",
+      "service_cents": 400
+    },
+    {
+      "request_id": "compliance",
+      "agent_id": "specialist",
+      "service_cents": 100
+    }
+  ]
+}

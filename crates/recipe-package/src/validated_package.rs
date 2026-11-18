@@ -52,4 +52,31 @@ impl ValidatedPackage {
             execution_identity: identity::execution(&e.id, &e.model, bytes),
         })
     }
+
+    /// Explicit v2 penalty interface; never reinterprets a v1 model or result.
+    pub fn compile_penalty(
+        &self,
+        selection: Option<&str>,
+        records: &str,
+    ) -> Result<crate::CompiledPenaltyPackage, PackageError> {
+        use orchestrata_recipe_runtime::mathematical::{
+            compile_penalty_model, parse_penalty_model,
+        };
+        let e = self
+            .entrypoints
+            .get(selection.unwrap_or(&self.default_entrypoint))
+            .ok_or(PackageError::Entrypoint)?;
+        let bytes = &self.files[&e.model];
+        let xml = std::str::from_utf8(bytes).map_err(|_| PackageError::Xml)?;
+        let model = compile_penalty_model(
+            &parse_penalty_model(xml).map_err(PackageError::Model)?,
+            records,
+        )
+        .map_err(PackageError::Model)?;
+        Ok(crate::CompiledPenaltyPackage {
+            model,
+            content_identity: self.identity,
+            execution_identity: identity::execution_penalty(&e.id, &e.model, bytes),
+        })
+    }
 }

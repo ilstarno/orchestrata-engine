@@ -63,3 +63,7 @@ VALIDATE_PACKAGE="$PWD/target/debug/validate-package" SOLVE_PACKAGE="$PWD/target
 The authoring command accepts an optional leading XML 1.0 declaration with UTF-8 encoding (or omitted encoding), including an optional UTF-8 BOM. Other processing instructions, DTDs and non-UTF-8 bytes remain rejected. The output manifest is serialized as UTF-8 without a declaration.
 
 Atomic no-clobber publication uses a hard link from a sibling temporary file. The destination filesystem must support hard links. If it does not, authoring fails without publishing the output; there is no non-atomic fallback.
+
+## Explicit model versions
+
+Package validation accepts supported mathematical model versions without selecting an execution policy. Successful validation does not imply v1 execution, hosted support or authorization. `compile` and `solve-package` remain v1-only. V2 omission penalties require `compile_penalty` and `solve-penalty-package`, with distinct accounting and execution identity. See [the v2 contract](../../docs/penalty-xml-v2.md). No version fallback or result-field alias is applied.

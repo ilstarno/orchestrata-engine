@@ -6,6 +6,9 @@ use roxmltree::{Document, ParsingOptions};
 use std::collections::{BTreeMap, BTreeSet};
 
 pub fn parse_model(xml: &str) -> Result<ModelSpec, ModelError> {
+    parse_version(xml, "1")
+}
+pub(super) fn parse_version(xml: &str, version: &str) -> Result<ModelSpec, ModelError> {
     if xml.len() > 32768 {
         return Err(ModelError::ResourceLimit);
     }
@@ -27,7 +30,7 @@ pub fn parse_model(xml: &str) -> Result<ModelSpec, ModelError> {
     let root = doc.root_element();
     tag(root, "model", &["version", "id"])?;
     attr(root, "id")?;
-    if root.attribute("version") != Some("1") {
+    if root.attribute("version") != Some(version) {
         return Err(ModelError::UnsupportedSemantics);
     }
     let [inputs, parameters, decision, constraints, objectives] = children(root)?
@@ -179,7 +182,13 @@ pub fn parse_model(xml: &str) -> Result<ModelSpec, ModelError> {
         return Err(ModelError::UnsupportedSemantics);
     }
     tag(objectives, "objectives", &["order"])?;
-    if objectives.attribute("order") != Some("lexicographic") {
+    if objectives.attribute("order")
+        != Some(if version == "1" {
+            "lexicographic"
+        } else {
+            "single"
+        })
+    {
         return Err(ModelError::UnsupportedSemantics);
     }
     let mut goals = Vec::new();
@@ -188,11 +197,34 @@ pub fn parse_model(xml: &str) -> Result<ModelSpec, ModelError> {
             return Err(ModelError::UnsupportedSemantics);
         }
         match (o.tag_name().name(), o.attribute("operator")) {
-            ("maximize", Some("assigned-count")) => {
+            ("minimize", Some("service-plus-unassigned-cost")) if version == "2" => {
+                leaf(
+                    o,
+                    "minimize",
+                    &[
+                        "variable",
+                        "operator",
+                        "service-field",
+                        "penalty-field",
+                        "unit",
+                    ],
+                )?;
+                let service_field = attr(o, "service-field")?;
+                let penalty_field = attr(o, "penalty-field")?;
+                let unit = attr(o, "unit")?;
+                field_type(&bindings, &d.domain, &service_field, FieldType::U32)?;
+                field_type(&bindings, &d.items, &penalty_field, FieldType::U32)?;
+                goals.push(Objective::MinTotalCost {
+                    service_field,
+                    penalty_field,
+                    unit,
+                });
+            }
+            ("maximize", Some("assigned-count")) if version == "1" => {
                 leaf(o, "maximize", &["variable", "operator"])?;
                 goals.push(Objective::MaxAssigned);
             }
-            ("minimize", Some("edge-sum")) => {
+            ("minimize", Some("edge-sum")) if version == "1" => {
                 leaf(o, "minimize", &["variable", "operator", "field"])?;
                 let f = attr(o, "field")?;
                 field_type(&bindings, &d.domain, &f, FieldType::U32)?;
@@ -201,10 +233,15 @@ pub fn parse_model(xml: &str) -> Result<ModelSpec, ModelError> {
             _ => return Err(ModelError::UnsupportedSemantics),
         }
     }
-    if !matches!(
-        goals.as_slice(),
-        [Objective::MaxAssigned] | [Objective::MaxAssigned, Objective::MinEdgeSum(_)]
-    ) {
+    let supported = if version == "1" {
+        matches!(
+            goals.as_slice(),
+            [Objective::MaxAssigned] | [Objective::MaxAssigned, Objective::MinEdgeSum(_)]
+        )
+    } else {
+        d.nullable && matches!(goals.as_slice(), [Objective::MinTotalCost { .. }])
+    };
+    if !supported {
         return Err(ModelError::UnsupportedSemantics);
     }
     Ok(ModelSpec {

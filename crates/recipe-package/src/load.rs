@@ -2,7 +2,7 @@ use crate::{
     AssetKind, PackageError, PackagePath, ValidatedPackage, identity, parse_manifest, read_archive,
     xml,
 };
-use orchestrata_recipe_runtime::mathematical::parse_model;
+use orchestrata_recipe_runtime::mathematical::{parse_model, parse_penalty_model};
 use sha2::{Digest, Sha256};
 /// Validate the complete archive and every declared asset before exposing any metadata or entrypoint.
 pub fn load_package(bytes: &[u8]) -> Result<ValidatedPackage, PackageError> {
@@ -26,9 +26,15 @@ pub fn load_package(bytes: &[u8]) -> Result<ValidatedPackage, PackageError> {
         let text = std::str::from_utf8(bytes).map_err(|_| PackageError::Xml)?;
         let doc = xml::document(text)?;
         match a.kind {
-            AssetKind::Model => {
-                parse_model(text).map_err(|_| PackageError::Unsupported)?;
-            }
+            AssetKind::Model => match doc.root_element().attribute("version") {
+                Some("1") => {
+                    parse_model(text).map_err(|_| PackageError::Unsupported)?;
+                }
+                Some("2") => {
+                    parse_penalty_model(text).map_err(|_| PackageError::Unsupported)?;
+                }
+                _ => return Err(PackageError::Unsupported),
+            },
             AssetKind::Terms => {
                 let root = doc.root_element();
                 xml::tag(root, "terms", &["version"])?;

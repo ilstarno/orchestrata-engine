@@ -2,6 +2,7 @@ mod assignment;
 mod choice;
 mod edge;
 mod network;
+pub mod penalized;
 mod problem;
 mod solve;
 

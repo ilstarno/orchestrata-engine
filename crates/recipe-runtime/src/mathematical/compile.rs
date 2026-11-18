@@ -7,6 +7,15 @@ use serde_json::Value;
 use std::collections::{BTreeMap, BTreeSet};
 
 pub fn compile_model(spec: &ModelSpec, json: &str) -> Result<CompiledModel, ModelError> {
+    if matches!(spec.objectives.as_slice(), [Objective::MinTotalCost { .. }]) {
+        return Err(ModelError::UnsupportedSemantics);
+    }
+    Ok(compile_bound(spec, json)?.0)
+}
+pub(super) fn compile_bound(
+    spec: &ModelSpec,
+    json: &str,
+) -> Result<(CompiledModel, Vec<u32>), ModelError> {
     if json.len() > 524288 {
         return Err(ModelError::ResourceLimit);
     }
@@ -81,6 +90,7 @@ pub fn compile_model(spec: &ModelSpec, json: &str) -> Result<CompiledModel, Mode
     let cost = match spec.objectives.as_slice() {
         [Objective::MaxAssigned] => None,
         [Objective::MaxAssigned, Objective::MinEdgeSum(f)] => Some(f),
+        [Objective::MinTotalCost { service_field, .. }] => Some(service_field),
         _ => return Err(ModelError::UnsupportedSemantics),
     };
     let mut domains = vec![Vec::new(); items.len()];
@@ -102,14 +112,24 @@ pub fn compile_model(spec: &ModelSpec, json: &str) -> Result<CompiledModel, Mode
             cost: cost.map_or(0, |f| edge[f].as_u64().unwrap() as u32),
         });
     }
-    Ok(CompiledModel {
-        items: item_ids,
-        resources: resource_ids,
-        capacities,
-        domains,
-        minimize_cost: cost.is_some(),
-        nullable: d.nullable,
-    })
+    let penalties = match spec.objectives.as_slice() {
+        [Objective::MinTotalCost { penalty_field, .. }] => items
+            .iter()
+            .map(|row| row[penalty_field].as_u64().unwrap() as u32)
+            .collect(),
+        _ => Vec::new(),
+    };
+    Ok((
+        CompiledModel {
+            items: item_ids,
+            resources: resource_ids,
+            capacities,
+            domains,
+            minimize_cost: cost.is_some(),
+            nullable: d.nullable,
+        },
+        penalties,
+    ))
 }
 fn ids(rows: &[BTreeMap<String, Value>], key: &str) -> Result<Vec<String>, ModelError> {
     let ids = rows

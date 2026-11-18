@@ -1,0 +1,11 @@
+<model version="2" id="contact-center-penalties">
+  <inputs>
+    <records name="requests" field="requests"><field name="id" type="id"/><field name="missed_service_cents" type="u32"/></records>
+    <records name="agents" field="agents"><field name="id" type="id"/><field name="capacity" type="u32"/><field name="available" type="bool"/></records>
+    <records name="offers" field="offers"><field name="request_id" type="id"/><field name="agent_id" type="id"/><field name="service_cents" type="u32"/></records>
+  </inputs>
+  <parameters/>
+  <decision name="routing" kind="reference" items="requests" resources="agents" domain="offers" item-id="id" resource-id="id" edge-item="request_id" edge-resource="agent_id" nullable="true"/>
+  <constraints><capacity variable="routing" field="capacity"/><availability variable="routing" field="available" value="true"/></constraints>
+  <objectives order="single"><minimize variable="routing" operator="service-plus-unassigned-cost" service-field="service_cents" penalty-field="missed_service_cents" unit="cents"/></objectives>
+</model>

@@ -37,3 +37,8 @@ pub use package_path::PackagePath;
 pub use package_solution::PackageSolution;
 pub use package_version::PackageVersion;
 pub use validated_package::ValidatedPackage;
+
+mod compiled_penalty_package;
+mod penalty_package_solution;
+pub use compiled_penalty_package::CompiledPenaltyPackage;
+pub use penalty_package_solution::PenaltyPackageSolution;
