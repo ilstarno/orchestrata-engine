@@ -58,6 +58,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "orchestrata-recipes"
+version = "0.1.0"
+dependencies = [
+ "orchestrata-recipe-runtime",
+ "roxmltree",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "orchestrata-solver"
 version = "0.1.0"
 dependencies = [
