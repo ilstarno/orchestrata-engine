@@ -1,10 +1,11 @@
+use super::unsigned_field::UnsignedField;
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(super) enum Objective {
     MaxAssigned,
     MinTotalCost {
-        service_field: String,
-        penalty_field: String,
+        service_field: UnsignedField,
+        penalty_field: UnsignedField,
         unit: String,
     },
-    MinEdgeSum(String),
+    MinEdgeSum(UnsignedField),
 }

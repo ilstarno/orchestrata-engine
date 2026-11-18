@@ -22,9 +22,8 @@ pub use model_solution::ModelSolution;
 pub use model_spec::ModelSpec;
 pub use parse::parse_model;
 pub use solve::solve_model;
-pub fn run_model(xml: &str, inputs: &str) -> Result<ModelSolution, ModelError> {
-    solve_model(compile_model(&parse_model(xml)?, inputs)?)
-}
+mod run_model;
+pub use run_model::run_model;
 
 mod compiled_penalty_model;
 mod penalty;
@@ -36,3 +35,16 @@ pub use penalty::{
 };
 pub use penalty_model_solution::PenaltyModelSolution;
 pub use penalty_model_spec::PenaltyModelSpec;
+
+mod boolean_field;
+mod bound_assignment;
+mod coverage_goal;
+mod field_binding;
+mod id_field;
+mod read_records;
+mod record_id;
+mod record_value;
+#[cfg(test)]
+mod typed_record_tests;
+mod unsigned_field;
+mod validated_record;

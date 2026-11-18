@@ -1,0 +1,30 @@
+<model version="1" id="review-allocation">
+  <inputs>
+    <records name="manuscripts" field="documents">
+      <field name="document" type="id"/>
+    </records>
+    <records name="people" field="editors">
+      <field name="editor" type="id"/>
+      <field name="quota" type="u32"/>
+      <field name="blocked" type="bool"/>
+    </records>
+    <records name="choices" field="permissions">
+      <field name="manuscript" type="id"/>
+      <field name="reviewer" type="id"/>
+      <field name="turnaround" type="u32"/>
+    </records>
+  </inputs>
+  <parameters>
+    <parameter name="ceiling" type="u32" value="1"/>
+  </parameters>
+  <decision name="review-owner" kind="reference" items="manuscripts" resources="people" domain="choices"
+    item-id="document" resource-id="editor" edge-item="manuscript" edge-resource="reviewer" nullable="true"/>
+  <constraints>
+    <capacity variable="review-owner" field="quota" limit="ceiling"/>
+    <availability variable="review-owner" field="blocked" value="false"/>
+  </constraints>
+  <objectives order="lexicographic">
+    <maximize variable="review-owner" operator="assigned-count"/>
+    <minimize variable="review-owner" operator="edge-sum" field="turnaround"/>
+  </objectives>
+</model>

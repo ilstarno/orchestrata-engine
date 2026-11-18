@@ -1,10 +1,6 @@
-use orchestrata_solver::capacity_matching::weighted::WorkerCost;
+use super::{bound_assignment::BoundAssignment, coverage_goal::CoverageGoal};
 #[derive(Debug)]
 pub struct CompiledModel {
-    pub(super) items: Vec<String>,
-    pub(super) resources: Vec<String>,
-    pub(super) capacities: Vec<usize>,
-    pub(super) domains: Vec<Vec<WorkerCost>>,
-    pub(super) minimize_cost: bool,
-    pub(super) nullable: bool,
+    pub(super) assignment: BoundAssignment,
+    pub(super) goal: CoverageGoal,
 }

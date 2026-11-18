@@ -53,8 +53,8 @@ pub fn solve_penalty_model(
             .into_iter()
             .zip(result.workers_by_job)
             .map(|(item_id, worker)| ModelAssignment {
-                item_id,
-                resource_id: worker.map(|w| model.resources[w].clone()),
+                item_id: item_id.into_string(),
+                resource_id: worker.map(|w| model.resources[w].clone().into_string()),
             })
             .collect(),
     })
