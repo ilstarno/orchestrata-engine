@@ -4,12 +4,12 @@ use serde::{
 };
 use serde_json::value::RawValue;
 use std::{collections::BTreeMap, fmt};
-pub(super) struct StrictObject(pub BTreeMap<String, Box<RawValue>>);
-impl<'de> Deserialize<'de> for StrictObject {
+pub(super) struct StrictObject<'a>(pub BTreeMap<String, &'a RawValue>);
+impl<'de> Deserialize<'de> for StrictObject<'de> {
     fn deserialize<D: Deserializer<'de>>(d: D) -> Result<Self, D::Error> {
         struct Object;
         impl<'de> Visitor<'de> for Object {
-            type Value = StrictObject;
+            type Value = StrictObject<'de>;
             fn expecting(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
                 f.write_str("bounded named object with unique keys")
             }

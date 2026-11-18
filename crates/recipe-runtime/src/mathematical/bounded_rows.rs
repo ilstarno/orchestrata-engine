@@ -4,12 +4,12 @@ use serde::{
     de::{Error, SeqAccess, Visitor},
 };
 use std::fmt;
-pub(super) struct BoundedRows(pub Vec<StrictObject>);
-impl<'de> Deserialize<'de> for BoundedRows {
+pub(super) struct BoundedRows<'a>(pub Vec<StrictObject<'a>>);
+impl<'de> Deserialize<'de> for BoundedRows<'de> {
     fn deserialize<D: Deserializer<'de>>(d: D) -> Result<Self, D::Error> {
         struct Rows;
         impl<'de> Visitor<'de> for Rows {
-            type Value = BoundedRows;
+            type Value = BoundedRows<'de>;
             fn expecting(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
                 f.write_str("at most 128 named records")
             }
