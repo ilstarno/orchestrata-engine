@@ -1,0 +1,1 @@
+pub const MAX_COVERAGE_WORK: u32 = 5_000_000;

@@ -15,7 +15,8 @@ pub use error::CoverageError;
 pub use flow::verify_flow_witness;
 pub use outcome::CoverageOutcome;
 pub use witness::FlowWitness;
-pub const MAX_COVERAGE_WORK: u32 = 5_000_000;
+mod limits;
+pub use limits::MAX_COVERAGE_WORK;
 
 mod travel_bound;
 mod travel_capacity;
