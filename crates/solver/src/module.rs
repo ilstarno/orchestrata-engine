@@ -46,6 +46,8 @@ mod resource_capacity_validation;
 pub mod resource_limit;
 #[path = "resource_load.rs"]
 pub mod resource_load;
+#[path = "resource_load_totals.rs"]
+mod resource_load_totals;
 #[path = "scheduled_interval.rs"]
 pub mod scheduled_interval;
 #[path = "score.rs"]

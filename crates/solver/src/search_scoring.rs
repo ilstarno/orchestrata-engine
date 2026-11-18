@@ -1,6 +1,6 @@
 use super::{
     candidate_scratch::CandidateScratch, count_value_distance::distance,
-    precedence_shortfall::shortfall, resource_capacity_evaluation::exceeds_capacity,
+    precedence_shortfall::shortfall,
 };
 use crate::{Constraint, CountValueTier, Problem};
 
@@ -91,7 +91,10 @@ fn violates_hard_rule(
             scratch.no_overlap.has_overlap(intervals, |i| values[i])
         }
         Constraint::ResourceCapacity { items, limits } => {
-            exceeds_capacity(items, limits, |index| values[index])
+            scratch.resource_loads.collect(items, |index| values[index]);
+            limits
+                .iter()
+                .any(|limit| scratch.resource_loads.overload(limit) != 0)
         }
         Constraint::PreferValue { .. } => false,
     }

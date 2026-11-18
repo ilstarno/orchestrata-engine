@@ -322,3 +322,76 @@ fn dispatch_requires_both_minimum_job_coverage_and_weighted_vehicle_limits() {
     );
     assert_eq!(solve(&constrained, 8).unwrap(), None);
 }
+
+#[test]
+fn resource_scratch_matches_independent_assignment_and_score_oracles() {
+    const LEFT: i64 = i64::MIN;
+    const RIGHT: i64 = i64::MAX;
+    for seed in 0..256_u64 {
+        let first = [seed & 3, (seed >> 2) & 3, (seed >> 4) & 3];
+        let second = [(seed >> 5) & 3, seed & 1, (seed >> 7) & 1];
+        let bounds = [seed % 5, (seed / 7) % 7, (seed / 3) % 6, (seed / 11) % 7];
+        let problem = Problem {
+            variables: vec![
+                variable("a", &[LEFT, RIGHT]),
+                variable("b", &[RIGHT, LEFT]),
+                variable("c", &[LEFT, RIGHT]),
+            ],
+            constraints: vec![
+                capacity(
+                    first.iter().enumerate().map(|(i, &n)| item(i, n)).collect(),
+                    vec![limit(LEFT, bounds[0]), limit(RIGHT, bounds[1])],
+                ),
+                capacity(
+                    second
+                        .iter()
+                        .enumerate()
+                        .map(|(i, &n)| item(i, n))
+                        .collect(),
+                    vec![limit(RIGHT, bounds[3]), limit(LEFT, bounds[2])],
+                ),
+                Constraint::PreferValue {
+                    variable: 1,
+                    value: LEFT,
+                    soft_weight: 2,
+                },
+            ],
+        };
+        let mut expected: Option<Solution> = None;
+        for a in [LEFT, RIGHT] {
+            for b in [RIGHT, LEFT] {
+                for c in [LEFT, RIGHT] {
+                    let values = [a, b, c];
+                    let overload = |loads: [u64; 3], resource, cap: u64| {
+                        values
+                            .iter()
+                            .zip(loads)
+                            .filter(|(v, _)| **v == resource)
+                            .map(|(_, n)| n)
+                            .sum::<u64>()
+                            .saturating_sub(cap)
+                    };
+                    let hard = -((overload(first, LEFT, bounds[0])
+                        + overload(first, RIGHT, bounds[1])
+                        + overload(second, LEFT, bounds[2])
+                        + overload(second, RIGHT, bounds[3]))
+                        as i64);
+                    let grade = Score {
+                        hard,
+                        soft: if b == LEFT { 0 } else { -2 },
+                    };
+                    assert_eq!(score(&problem, &values), Ok(grade));
+                    if hard == 0 && expected.as_ref().is_none_or(|s| s.score.soft < grade.soft) {
+                        expected = Some(Solution {
+                            values: values.to_vec(),
+                            score: grade,
+                            evaluated: 8,
+                        });
+                    }
+                }
+            }
+        }
+        assert_eq!(solve(&problem, 7), Err(Error::TooManyAssignments));
+        assert_eq!(solve(&problem, 8), Ok(expected), "seed {seed}");
+    }
+}
