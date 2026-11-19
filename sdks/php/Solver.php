@@ -29,6 +29,22 @@ final class Solver
         }
     }
 
+    /** Returns null only when the search proves infeasibility. Requires 64-bit PHP. */
+    public function solve(Problem $problem, int $maxEvaluations): ?Solution
+    {
+        if (PHP_INT_SIZE !== 8) {
+            throw new \RuntimeException('Typed solves require a 64-bit PHP runtime.');
+        }
+
+        $request = json_encode($problem, JSON_THROW_ON_ERROR);
+        $solution = Solution::fromAbiResult($this->solveJson($request, $maxEvaluations));
+        if ($solution !== null && count($solution->values) !== count($problem->variables)) {
+            throw new \UnexpectedValueException('Native solution does not match the variable count.');
+        }
+
+        return $solution;
+    }
+
     /** Returns the raw JSON result, without converting its 64-bit integers. */
     public function solveJson(string $problem, int $maxEvaluations): string
     {
