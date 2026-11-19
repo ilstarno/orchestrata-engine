@@ -13,7 +13,11 @@ func SolveProblem(problem Problem, maxEvaluations uint64) (*Solution, error) {
 	if err != nil {
 		return nil, err
 	}
-	return DecodeResultForProblemV1(response, problem)
+	solution, err := DecodeResultForProblemV1(response, problem)
+	if err == nil && solution != nil && solution.Evaluated > maxEvaluations {
+		return nil, fmt.Errorf("Orchestrata response exceeds requested budget")
+	}
+	return solution, err
 }
 
 // DecodeResultForProblemV1 also checks that each verified result value belongs

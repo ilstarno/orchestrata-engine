@@ -1,121 +1,28 @@
 """Typed problem and result values for the Orchestrata ABI v1 JSON contract."""
 
-from dataclasses import dataclass
 import json
-from typing import Literal, TypeAlias, cast
+from orchestrata_types.variable import Variable
+from orchestrata_types.all_different import AllDifferent
+from orchestrata_types.not_equal_offset import NotEqualOffset
+from orchestrata_types.prefer_value import PreferValue
+from orchestrata_types.count_value import CountValue
+from orchestrata_types.resource_load import ResourceLoad
+from orchestrata_types.resource_limit import ResourceLimit
+from orchestrata_types.resource_capacity import ResourceCapacity
+from orchestrata_types.precedence import Precedence
+from orchestrata_types.scheduled_interval import ScheduledInterval
+from orchestrata_types.no_overlap import NoOverlap
+from orchestrata_types.problem import Problem
+from orchestrata_types.score import Score
+from orchestrata_types.solution import Solution
+from orchestrata_types.result_format_error import ResultFormatError
+from orchestrata_types.constraint import Constraint
+from typing import cast
 
 _I64_MIN = -(2 ** 63)
 _I64_MAX = 2 ** 63 - 1
 _U64_MAX = 2 ** 64 - 1
 _MAX_RESULT_BYTES = 2_097_152
-
-
-@dataclass(frozen=True, slots=True)
-class Variable:
-    name: str
-    domain: tuple[int, ...]
-
-
-@dataclass(frozen=True, slots=True)
-class AllDifferent:
-    variables: tuple[int, ...]
-    hard_weight: int
-
-
-@dataclass(frozen=True, slots=True)
-class NotEqualOffset:
-    left: int
-    right: int
-    offset: int
-    hard_weight: int
-
-
-@dataclass(frozen=True, slots=True)
-class PreferValue:
-    variable: int
-    value: int
-    soft_weight: int
-
-
-@dataclass(frozen=True, slots=True)
-class CountValue:
-    variables: tuple[int, ...]
-    value: int
-    min: int
-    max: int
-    weight: int
-    tier: Literal["hard", "soft"]
-
-
-@dataclass(frozen=True, slots=True)
-class ResourceLoad:
-    variable: int
-    load: int
-
-
-@dataclass(frozen=True, slots=True)
-class ResourceLimit:
-    resource: int
-    capacity: int
-
-
-@dataclass(frozen=True, slots=True)
-class ResourceCapacity:
-    items: tuple[ResourceLoad, ...]
-    limits: tuple[ResourceLimit, ...]
-
-
-@dataclass(frozen=True, slots=True)
-class Precedence:
-    """Require the after start to be at least min_gap units after before."""
-
-    before: int
-    after: int
-    min_gap: int
-
-
-@dataclass(frozen=True, slots=True)
-class ScheduledInterval:
-    """A start-variable index and duration in the model's time unit."""
-
-    start: int
-    duration: int
-
-
-@dataclass(frozen=True, slots=True)
-class NoOverlap:
-    """Share one exclusive resource among half-open fixed-duration intervals."""
-
-    intervals: tuple[ScheduledInterval, ...]
-
-
-Constraint: TypeAlias = (
-    AllDifferent | NotEqualOffset | PreferValue | CountValue | ResourceCapacity
-    | Precedence | NoOverlap
-)
-
-
-@dataclass(frozen=True, slots=True)
-class Problem:
-    variables: tuple[Variable, ...]
-    constraints: tuple[Constraint, ...] = ()
-
-
-@dataclass(frozen=True, slots=True)
-class Score:
-    hard: int
-    soft: int
-
-
-@dataclass(frozen=True, slots=True)
-class Solution:
-    values: tuple[int, ...]
-    score: Score
-    evaluated: int
-
-
-class ResultFormatError(ValueError):
-    """The native response was not a valid ABI v1 result."""
 
 
 def _integer(value: object, low: int, high: int, field: str) -> int:

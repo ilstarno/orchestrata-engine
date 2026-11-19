@@ -19,45 +19,6 @@ const (
 	maxV1ResultBytes  = int(C.ORCHESTRATA_MAX_RESULT_BYTES)
 )
 
-type Status int32
-
-const (
-	InvalidProblem  Status = 1
-	SearchLimit     Status = 2
-	InternalError   Status = 3
-	InvalidArgument Status = 4
-)
-
-type SolveError struct {
-	Status Status
-}
-
-func (err *SolveError) Error() string {
-	switch err.Status {
-	case InvalidProblem:
-		return "invalid problem"
-	case SearchLimit:
-		return "search limit exceeded"
-	case InternalError:
-		return "solver execution failed"
-	case InvalidArgument:
-		return "invalid native argument"
-	default:
-		return fmt.Sprintf("unknown native status %d", err.Status)
-	}
-}
-
-type Score struct {
-	Hard int64 `json:"hard"`
-	Soft int64 `json:"soft"`
-}
-
-type Solution struct {
-	Values    []int64 `json:"values"`
-	Score     Score   `json:"score"`
-	Evaluated uint64  `json:"evaluated"`
-}
-
 // SolveJSON sends a UTF-8 JSON problem and returns a copied UTF-8 result document.
 func SolveJSON(problem []byte, maxEvaluations uint64) ([]byte, error) {
 	if current := uint32(C.orchestrata_abi_version()); current != ABIVersion {
