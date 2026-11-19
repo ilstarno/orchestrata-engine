@@ -10,6 +10,7 @@
   },
   "files": [
     "binding.gyp",
+    "linux-build-flag.js",
     "native.c",
     "index.js",
     "index.d.ts",
