@@ -10,6 +10,7 @@ import java.lang.invoke.MethodHandle;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Objects;
+import java.util.Optional;
 
 /** Synchronous bindings for the native Orchestrata ABI v1 on 64-bit Java 22+. */
 public final class Solver implements AutoCloseable {
@@ -82,6 +83,12 @@ public final class Solver implements AutoCloseable {
         } catch (Throwable error) {
             throw new IllegalStateException("Cannot invoke Orchestrata solver", error);
         }
+    }
+
+    /** Typed finite-domain solve. An empty result means no feasible solution was returned. */
+    public Optional<Solution> solve(Problem problem, long maxEvaluations) {
+        byte[] request = new ProblemEncoder().encode(problem);
+        return new ResultDecoder(solveJson(request, maxEvaluations)).decode(problem.variables().size());
     }
 
     public String solveJson(String problem, long maxEvaluations) {
