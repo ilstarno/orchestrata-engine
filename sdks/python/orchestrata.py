@@ -10,6 +10,9 @@ from orchestrata_models import (
     AllDifferent as AllDifferent,
     Constraint as Constraint,
     CountValue as CountValue,
+    Precedence as Precedence,
+    ScheduledInterval as ScheduledInterval,
+    NoOverlap as NoOverlap,
     NotEqualOffset as NotEqualOffset,
     PreferValue as PreferValue,
     Problem as Problem,
@@ -24,22 +27,10 @@ from orchestrata_models import (
     encode_problem_v1 as encode_problem_v1,
 )
 
+from orchestrata_types.solve_error import SolveError as SolveError
+
 ABI_VERSION = 1
 MAX_EVALUATIONS = 2**64 - 1
-
-
-class SolveError(RuntimeError):
-    """The native solver rejected the call; status is the stable C status code."""
-
-    def __init__(self, status: int):
-        self.status = status
-        message = {
-            1: "invalid problem",
-            2: "search limit exceeded",
-            3: "solver execution failed",
-            4: "invalid native argument",
-        }.get(status, "unknown native error")
-        super().__init__(message)
 
 
 class Solver:

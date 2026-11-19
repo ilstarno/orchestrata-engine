@@ -1,7 +1,8 @@
 package orchestrata
 
-// Constraint is one of the built-in finite-domain constraint values:
-// AllDifferent, NotEqualOffset, or PreferValue.
+// Constraint is an Orchestrata finite-domain rule: AllDifferent, CountValue,
+// NoOverlap, NotEqualOffset, Precedence, PreferValue, or ResourceCapacity.
+// Pass a value (not a pointer) to a typed problem.
 type Constraint interface {
 	finiteDomainConstraint()
 }

@@ -10,3 +10,4 @@ readme = "README.md"
 
 [tool.setuptools]
 py-modules = ["orchestrata", "orchestrata_models"]
+packages = ["orchestrata_types"]

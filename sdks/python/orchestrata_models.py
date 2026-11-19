@@ -1,94 +1,28 @@
 """Typed problem and result values for the Orchestrata ABI v1 JSON contract."""
 
-from dataclasses import dataclass
 import json
-from typing import Literal, TypeAlias, cast
+from orchestrata_types.variable import Variable
+from orchestrata_types.all_different import AllDifferent
+from orchestrata_types.not_equal_offset import NotEqualOffset
+from orchestrata_types.prefer_value import PreferValue
+from orchestrata_types.count_value import CountValue
+from orchestrata_types.resource_load import ResourceLoad
+from orchestrata_types.resource_limit import ResourceLimit
+from orchestrata_types.resource_capacity import ResourceCapacity
+from orchestrata_types.precedence import Precedence
+from orchestrata_types.scheduled_interval import ScheduledInterval
+from orchestrata_types.no_overlap import NoOverlap
+from orchestrata_types.problem import Problem
+from orchestrata_types.score import Score
+from orchestrata_types.solution import Solution
+from orchestrata_types.result_format_error import ResultFormatError
+from orchestrata_types.constraint import Constraint
+from typing import cast
 
 _I64_MIN = -(2 ** 63)
 _I64_MAX = 2 ** 63 - 1
 _U64_MAX = 2 ** 64 - 1
 _MAX_RESULT_BYTES = 2_097_152
-
-
-@dataclass(frozen=True, slots=True)
-class Variable:
-    name: str
-    domain: tuple[int, ...]
-
-
-@dataclass(frozen=True, slots=True)
-class AllDifferent:
-    variables: tuple[int, ...]
-    hard_weight: int
-
-
-@dataclass(frozen=True, slots=True)
-class NotEqualOffset:
-    left: int
-    right: int
-    offset: int
-    hard_weight: int
-
-
-@dataclass(frozen=True, slots=True)
-class PreferValue:
-    variable: int
-    value: int
-    soft_weight: int
-
-
-@dataclass(frozen=True, slots=True)
-class CountValue:
-    variables: tuple[int, ...]
-    value: int
-    min: int
-    max: int
-    weight: int
-    tier: Literal["hard", "soft"]
-
-
-@dataclass(frozen=True, slots=True)
-class ResourceLoad:
-    variable: int
-    load: int
-
-
-@dataclass(frozen=True, slots=True)
-class ResourceLimit:
-    resource: int
-    capacity: int
-
-
-@dataclass(frozen=True, slots=True)
-class ResourceCapacity:
-    items: tuple[ResourceLoad, ...]
-    limits: tuple[ResourceLimit, ...]
-
-
-Constraint: TypeAlias = AllDifferent | NotEqualOffset | PreferValue | CountValue | ResourceCapacity
-
-
-@dataclass(frozen=True, slots=True)
-class Problem:
-    variables: tuple[Variable, ...]
-    constraints: tuple[Constraint, ...] = ()
-
-
-@dataclass(frozen=True, slots=True)
-class Score:
-    hard: int
-    soft: int
-
-
-@dataclass(frozen=True, slots=True)
-class Solution:
-    values: tuple[int, ...]
-    score: Score
-    evaluated: int
-
-
-class ResultFormatError(ValueError):
-    """The native response was not a valid ABI v1 result."""
 
 
 def _integer(value: object, low: int, high: int, field: str) -> int:
@@ -144,6 +78,26 @@ def _encode_resource_capacity(value: ResourceCapacity, count: int) -> dict[str, 
     return {"kind": "resource_capacity", "items": items, "limits": limits}
 
 
+def _encode_no_overlap(value: NoOverlap, count: int) -> dict[str, object]:
+    intervals = _sequence(value.intervals, "intervals")
+    if len(intervals) < 2:
+        raise ValueError("no_overlap requires at least two intervals")
+    seen: set[int] = set()
+    encoded: list[dict[str, int]] = []
+    for interval in intervals:
+        if not isinstance(interval, ScheduledInterval):
+            raise TypeError("intervals must contain ScheduledInterval values")
+        start = _index(interval.start, count)
+        if start in seen:
+            raise ValueError("no_overlap start variables must be distinct")
+        seen.add(start)
+        encoded.append({
+            "start": start,
+            "duration": _integer(interval.duration, 0, _U64_MAX, "duration"),
+        })
+    return {"kind": "no_overlap", "intervals": encoded}
+
+
 def _encode_constraint(value: object, count: int) -> dict[str, object]:
     if isinstance(value, AllDifferent):
         return {
@@ -183,6 +137,19 @@ def _encode_constraint(value: object, count: int) -> dict[str, object]:
         }
     if isinstance(value, ResourceCapacity):
         return _encode_resource_capacity(value, count)
+    if isinstance(value, Precedence):
+        before = _index(value.before, count)
+        after = _index(value.after, count)
+        if before == after:
+            raise ValueError("precedence before and after variables must be distinct")
+        return {
+            "kind": "precedence",
+            "before": before,
+            "after": after,
+            "min_gap": _integer(value.min_gap, 0, _U64_MAX, "min_gap"),
+        }
+    if isinstance(value, NoOverlap):
+        return _encode_no_overlap(value, count)
     raise TypeError("unsupported constraint value")
 
 
