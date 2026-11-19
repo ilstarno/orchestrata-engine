@@ -6,6 +6,8 @@ namespace Orchestrata;
 /// <summary>A binding to one native Orchestrata v1 library.</summary>
 public sealed class Solver : IDisposable
 {
+    private const int MaxTypedResponseBytes = 2 * 1024 * 1024;
+    private static readonly UTF8Encoding StrictUtf8 = new(false, true);
     private readonly object gate = new();
     private readonly SolveNative solve;
     private readonly FreeNative free;
@@ -45,7 +47,7 @@ public sealed class Solver : IDisposable
         InvokeNative(problem, maxEvaluations)
             ?? throw new InvalidOperationException("Native solver returned no response.");
 
-    private unsafe string? InvokeNative(ReadOnlySpan<byte> problem, ulong maxEvaluations)
+    private unsafe string? InvokeNative(ReadOnlySpan<byte> problem, ulong maxEvaluations, bool typed = false)
     {
         lock (gate)
         {
@@ -60,7 +62,7 @@ public sealed class Solver : IDisposable
                         throw new SolveException(status);
                 }
 
-                return Marshal.PtrToStringUTF8(result);
+                return typed ? ReadTypedResponse(result) : Marshal.PtrToStringUTF8(result);
             }
             finally
             {
@@ -79,8 +81,33 @@ public sealed class Solver : IDisposable
     public SolveOutcome Solve(Problem problem, ulong maxEvaluations)
     {
         PreparedProblem request = ProblemEncoder.Encode(problem);
-        string response = InvokeNative(request.Utf8, maxEvaluations) ?? throw new SolveResponseException();
+        string response = InvokeNative(request.Utf8, maxEvaluations, typed: true) ?? throw new SolveResponseException();
         return ResultDecoder.Decode(response, request.Domains, maxEvaluations);
+    }
+
+    private static unsafe string ReadTypedResponse(nint result)
+    {
+        if (result == 0)
+            throw new SolveResponseException();
+
+        // The trusted V1 library owns a NUL-terminated buffer until free.
+        byte* response = (byte*)result;
+        for (int length = 0; length < MaxTypedResponseBytes; length++)
+        {
+            if (response[length] != 0)
+                continue;
+
+            try
+            {
+                return StrictUtf8.GetString(new ReadOnlySpan<byte>(response, length));
+            }
+            catch (DecoderFallbackException)
+            {
+                throw new SolveResponseException();
+            }
+        }
+
+        throw new SolveResponseException();
     }
 
     public void Dispose()

@@ -1,3 +1,5 @@
+#nullable enable
+
 using Orchestrata;
 
 internal static class TypedTests
@@ -64,8 +66,8 @@ internal static class TypedTests
         using var solver = new Solver(library);
         Problem one = new([new Variable("fixed", [0])], []);
         // Duplicate root and nested fields, value outside domain, noninteger
-        // amount, count above the budget, and a null output pointer, respectively.
-        for (ulong budget = 1; budget <= 6; budget++)
+        // amount, count above budget, null output, and oversized output.
+        for (ulong budget = 1; budget <= 7; budget++)
         {
             ulong invalidBudget = budget;
             Expect<SolveResponseException>(() => solver.Solve(one, invalidBudget));

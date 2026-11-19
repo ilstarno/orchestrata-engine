@@ -20,6 +20,15 @@ int32_t orchestrata_solve_json_v1(
         case 3: json = "{\"solution\":{\"values\":[9],\"score\":{\"hard\":0,\"soft\":0},\"evaluated\":1}}"; break;
         case 4: json = "{\"solution\":{\"values\":[0.0],\"score\":{\"hard\":0,\"soft\":0},\"evaluated\":1}}"; break;
         case 6: *result = NULL; return ORCHESTRATA_OK;
+        case 7: {
+            const size_t length = 2u * 1024u * 1024u;
+            *result = malloc(length + 1);
+            if (*result == NULL)
+                return ORCHESTRATA_INTERNAL_ERROR;
+            memset(*result, ' ', length);
+            (*result)[length] = '\0';
+            return ORCHESTRATA_OK;
+        }
         default: json = "{\"solution\":{\"values\":[0],\"score\":{\"hard\":0,\"soft\":0},\"evaluated\":6}}"; break;
     }
     size_t bytes = strlen(json) + 1;
