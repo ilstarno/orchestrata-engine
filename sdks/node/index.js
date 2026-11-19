@@ -1,6 +1,9 @@
 'use strict';
 
 const native = require('./build/Release/orchestrata.node');
+const { decodeResult } = require('./decode-result');
+const { encodeProblem, requireBudget } = require('./encode-problem');
+const { SolveError, nativeFailure } = require('./solve-error');
 
 /**
  * @param {string | Buffer} problem Lossless UTF-8 JSON, not a JSON object
@@ -16,4 +19,22 @@ function solveJson(problem, maxEvaluations) {
     return native.solveJson(problem, maxEvaluations);
 }
 
-module.exports = { solveJson };
+function solve(problem, maxEvaluations) {
+    if (typeof JSON.rawJSON !== 'function'
+        || JSON.parse('0', (_key, _value, context) => context?.source) !== '0') {
+        throw new SolveError('unsupported_runtime', 'The typed API requires lossless JSON support in Node.js.');
+    }
+
+    const budget = requireBudget(maxEvaluations);
+    const { json, domains } = encodeProblem(problem);
+    let response;
+    try {
+        response = solveJson(json, budget);
+    } catch (error) {
+        throw nativeFailure(error);
+    }
+
+    return decodeResult(response, domains, budget);
+}
+
+module.exports = { SolveError, solve, solveJson };

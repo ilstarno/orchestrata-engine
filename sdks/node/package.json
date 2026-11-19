@@ -5,7 +5,17 @@
   "main": "index.js",
   "types": "index.d.ts",
   "gypfile": true,
-  "files": ["binding.gyp", "native.c", "index.js", "index.d.ts"],
+  "files": [
+    "binding.gyp",
+    "native.c",
+    "index.js",
+    "index.d.ts",
+    "decode-result.js",
+    "encode-problem.js",
+    "integers.js",
+    "solve-error.js",
+    "types"
+  ],
   "scripts": {
     "build": "node-gyp rebuild"
   }
