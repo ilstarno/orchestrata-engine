@@ -57,8 +57,7 @@ fit in 64 bits, Rust returns `ScoreOverflow`.
 This is an added request kind in the existing native V1 JSON envelope, not
 a new ABI version. Use a native library that includes this rule; older
 libraries reject it. The public Rust enums have new variants, so downstream
-exhaustive matches need updating when upgrading. Typed SDK builders require
-separate updates unless they accept raw problem JSON.
+exhaustive matches need updating when upgrading. All six typed SDKs now expose this rule; see the [SDK guide](sdks/README.md).
 
 ## Reserve one exclusive resource over time
 
@@ -93,8 +92,7 @@ the final score cannot fit in a signed 64-bit result. The exact solve still
 requires a search budget and does not choose the room or equipment for you.
 
 This is an additional raw native V1 JSON constraint. Use a library build
-containing the rule; older builds do not recognize it. Typed SDK builders
-are not extended by this change.
+containing the rule; older builds do not recognize it. All six typed SDKs now expose `NoOverlap`; see the [SDK guide](sdks/README.md).
 
 
 ## Construct small pickup-and-delivery routes in Rust
