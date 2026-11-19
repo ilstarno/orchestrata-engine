@@ -6,11 +6,17 @@
   "targets": [{
     "target_name": "orchestrata",
     "sources": ["native.c"],
-    "include_dirs": ["<(orchestrata_include_dir)"],
     "conditions": [
+      ["OS=='linux'", {
+        "cflags": ["<!(node linux-build-flag.js include)"],
+        "libraries": ["<!(node linux-build-flag.js library)", "-lorchestrata_ffi"]
+      }, {
+        "include_dirs": ["<(orchestrata_include_dir)"]
+      }],
       ["OS=='win'", {
         "libraries": ["<(orchestrata_lib_dir)/orchestrata_ffi.dll.lib"]
-      }, {
+      }],
+      ["OS!='linux' and OS!='win'", {
         "libraries": ["-L<(orchestrata_lib_dir)", "-lorchestrata_ffi"]
       }]
     ]

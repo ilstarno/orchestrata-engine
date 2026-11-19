@@ -8,6 +8,13 @@ lib=$(cd "$3" && pwd)
 tmp=$(mktemp -d)
 trap 'rm -rf "$tmp"' EXIT
 export npm_config_cache="$tmp/cache"
+if [ "$(uname -s)" = Linux ]; then
+    mkdir "$tmp/O'Brien headers" "$tmp/O'Brien libraries"
+    cp "$include/orchestrata.h" "$tmp/O'Brien headers/"
+    cp -L "$lib/liborchestrata_ffi.so" "$tmp/O'Brien libraries/"
+    include="$tmp/O'Brien headers"
+    lib="$tmp/O'Brien libraries"
+fi
 mkdir "$tmp/consumer"
 packed=$(cd "$sdk" && npm pack --ignore-scripts --pack-destination "$tmp")
 cd "$tmp/consumer"
