@@ -8,12 +8,8 @@ long value = response.RootElement.GetProperty("solution").GetProperty("values")[
 if (value != long.MaxValue)
     throw new Exception("The solver lost integer precision.");
 
-try
-{
-    solver.SolveJson(problem, 0);
-}
-catch (SolveException exception) when (exception.Status == 2)
-{
-    return;
-}
-throw new Exception("Expected a search limit error.");
+TypedTests.Expect<SolveException>(() => solver.SolveJson(problem, 0), error => error.Status == 2);
+TypedTests.Run(solver);
+if (args.Length == 2)
+    TypedTests.RejectMalformedResponses(args[1]);
+Console.WriteLine("C# raw and typed native tests passed.");
