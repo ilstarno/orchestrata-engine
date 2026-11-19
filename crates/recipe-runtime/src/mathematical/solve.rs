@@ -1,6 +1,4 @@
-use super::{
-    CompiledModel, ModelAssignment, ModelError, ModelSolution, coverage_goal::CoverageGoal,
-};
+use super::{CompiledModel, ModelError, ModelSolution, coverage_goal::CoverageGoal};
 use orchestrata_solver::capacity_matching::{
     CapacityMatchProblem, match_capacity,
     weighted::{WeightedMatchProblem, match_capacity_min_cost},
@@ -8,12 +6,12 @@ use orchestrata_solver::capacity_matching::{
 
 pub fn solve_model(model: CompiledModel) -> Result<ModelSolution, ModelError> {
     let goal = model.goal;
-    let model = model.assignment;
+    let mut model = model.assignment;
     let (workers, assigned, cost) = match goal {
         CoverageGoal::CoverageThenEdgeCost => {
             let result = match_capacity_min_cost(&WeightedMatchProblem {
-                worker_capacities: model.capacities,
-                eligible_workers_by_job: model.domains,
+                worker_capacities: std::mem::take(&mut model.capacities),
+                eligible_workers_by_job: std::mem::take(&mut model.domains),
             })
             .map_err(|_| ModelError::SolverFailure)?;
             (
@@ -24,7 +22,7 @@ pub fn solve_model(model: CompiledModel) -> Result<ModelSolution, ModelError> {
         }
         CoverageGoal::MaximumCoverage => {
             let result = match_capacity(&CapacityMatchProblem {
-                worker_capacities: model.capacities,
+                worker_capacities: std::mem::take(&mut model.capacities),
                 eligible_workers_by_job: model
                     .domains
                     .iter()
@@ -35,20 +33,5 @@ pub fn solve_model(model: CompiledModel) -> Result<ModelSolution, ModelError> {
             (result.workers_by_job, result.assigned, None)
         }
     };
-    if !model.nullable && assigned != model.items.len() {
-        return Err(ModelError::Infeasible);
-    }
-    Ok(ModelSolution {
-        assigned,
-        minimized_edge_sum: cost,
-        assignments: model
-            .items
-            .into_iter()
-            .zip(workers)
-            .map(|(item_id, r)| ModelAssignment {
-                item_id: item_id.into_string(),
-                resource_id: r.map(|index| model.resources[index].clone().into_string()),
-            })
-            .collect(),
-    })
+    super::finish_assignment::finish_assignment(model, workers, assigned, cost)
 }
