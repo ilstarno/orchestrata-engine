@@ -121,6 +121,11 @@ fn exhaustive_weighted_graphs_agree_with_independent_oracle() {
                 );
                 let plan = match_capacity_min_cost(&problem).unwrap();
                 assert_eq!(
+                    super::match_capacity_min_cost_controlled(&problem, || Ok::<(), ()>(()))
+                        .unwrap(),
+                    plan
+                );
+                assert_eq!(
                     (plan.assigned, plan.total_cost),
                     expected,
                     "mask={mask} capacity={capacity_code} variant={variant}"
@@ -209,4 +214,36 @@ fn validates_same_hard_boundaries_without_implicit_defaults() {
         match_capacity_min_cost(&problem),
         Err(CapacityMatchError::TooManyRecords)
     );
+}
+
+#[test]
+fn cancellation_at_every_checkpoint_discards_partial_work() {
+    use super::{ControlledMatchError, match_capacity_min_cost_controlled};
+    let problem = WeightedMatchProblem {
+        worker_capacities: vec![2, 1, 1],
+        eligible_workers_by_job: vec![
+            vec![edge(0, 8), edge(1, 1)],
+            vec![edge(0, 1), edge(2, 4)],
+            vec![edge(1, 2), edge(2, 9)],
+            vec![edge(0, 3), edge(1, 0), edge(2, 2)],
+        ],
+    };
+    let mut total = 0;
+    let completed = match_capacity_min_cost_controlled(&problem, || {
+        total += 1;
+        Ok::<(), usize>(())
+    })
+    .unwrap();
+    assert_eq!(completed, match_capacity_min_cost(&problem).unwrap());
+    assert!(total > 100);
+    for stop in 1..=total {
+        let mut calls = 0;
+        let result = match_capacity_min_cost_controlled(&problem, || {
+            calls += 1;
+            if calls == stop { Err(stop) } else { Ok(()) }
+        });
+        assert_eq!(result, Err(ControlledMatchError::Cancelled(stop)));
+        assert_eq!(calls, stop);
+        assert_eq!(match_capacity_min_cost(&problem).unwrap(), completed);
+    }
 }

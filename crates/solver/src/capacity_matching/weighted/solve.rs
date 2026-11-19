@@ -1,6 +1,8 @@
 use crate::capacity_matching::CapacityMatchError;
 
-use super::{WeightedMatchAssignment, WeightedMatchProblem, network::ResidualNetwork};
+use super::{
+    ControlledMatchError, WeightedMatchAssignment, WeightedMatchProblem, network::ResidualNetwork,
+};
 
 /// Find the maximum number of assignments, then minimize their total stated cost.
 ///
@@ -11,7 +13,24 @@ use super::{WeightedMatchAssignment, WeightedMatchProblem, network::ResidualNetw
 pub fn match_capacity_min_cost(
     problem: &WeightedMatchProblem,
 ) -> Result<WeightedMatchAssignment, CapacityMatchError> {
-    problem.validate()?;
+    match match_capacity_min_cost_controlled(problem, || Ok::<(), std::convert::Infallible>(())) {
+        Ok(result) => Ok(result),
+        Err(ControlledMatchError::InvalidProblem(error)) => Err(error),
+        Err(ControlledMatchError::Cancelled(never)) => match never {},
+    }
+}
+
+/// Exact weighted matching with cooperative checkpoints. An error from `check`
+/// discards all local work; no partial assignment or optimality claim is returned.
+/// The callback must be cheap and nonblocking. This is not a hard time limit.
+pub fn match_capacity_min_cost_controlled<E>(
+    problem: &WeightedMatchProblem,
+    mut check: impl FnMut() -> Result<(), E>,
+) -> Result<WeightedMatchAssignment, ControlledMatchError<E>> {
+    check().map_err(ControlledMatchError::Cancelled)?;
+    problem
+        .validate()
+        .map_err(ControlledMatchError::InvalidProblem)?;
 
     let source = 0;
     let first_job = 1;
@@ -21,6 +40,7 @@ pub fn match_capacity_min_cost(
     let mut assignment_edges = Vec::with_capacity(problem.eligible_workers_by_job.len());
 
     for (job, eligible) in problem.eligible_workers_by_job.iter().enumerate() {
+        check().map_err(ControlledMatchError::Cancelled)?;
         let node = first_job + job;
         network.add(source, node, 1, 0);
         let edges = eligible
@@ -35,10 +55,14 @@ pub fn match_capacity_min_cost(
     }
 
     let mut assigned = 0;
-    while network.augment_cheapest(source, sink) {
+    while network
+        .augment_cheapest_controlled(source, sink, &mut check)
+        .map_err(ControlledMatchError::Cancelled)?
+    {
         assigned += 1;
     }
 
+    check().map_err(ControlledMatchError::Cancelled)?;
     let mut total_cost = 0;
     let workers_by_job = assignment_edges
         .iter()
@@ -55,6 +79,7 @@ pub fn match_capacity_min_cost(
             })
         })
         .collect();
+    check().map_err(ControlledMatchError::Cancelled)?;
     Ok(WeightedMatchAssignment {
         workers_by_job,
         assigned,

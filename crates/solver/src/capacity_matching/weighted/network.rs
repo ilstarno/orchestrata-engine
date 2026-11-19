@@ -39,6 +39,21 @@ impl ResidualNetwork {
     }
 
     pub(super) fn augment_cheapest(&mut self, source: usize, sink: usize) -> bool {
+        match self.augment_cheapest_controlled(source, sink, &mut || {
+            Ok::<(), std::convert::Infallible>(())
+        }) {
+            Ok(result) => result,
+            Err(never) => match never {},
+        }
+    }
+
+    pub(super) fn augment_cheapest_controlled<E>(
+        &mut self,
+        source: usize,
+        sink: usize,
+        check: &mut impl FnMut() -> Result<(), E>,
+    ) -> Result<bool, E> {
+        check()?;
         let mut distances = vec![i64::MAX; self.edges.len()];
         let mut predecessor = vec![None; self.edges.len()];
         let mut queue = BinaryHeap::new();
@@ -46,10 +61,12 @@ impl ResidualNetwork {
         queue.push(Reverse((0, source)));
 
         while let Some(Reverse((distance, from))) = queue.pop() {
+            check()?;
             if distances[from] != distance {
                 continue;
             }
             for (edge_index, edge) in self.edges[from].iter().enumerate() {
+                check()?;
                 if edge.available == 0 {
                     continue;
                 }
@@ -68,7 +85,7 @@ impl ResidualNetwork {
         }
 
         if distances[sink] == i64::MAX {
-            return false;
+            return Ok(false);
         }
         for (potential, distance) in self.potentials.iter_mut().zip(distances) {
             if distance != i64::MAX {
@@ -85,6 +102,6 @@ impl ResidualNetwork {
             node = from;
         }
         debug_assert_eq!(node, source);
-        true
+        Ok(true)
     }
 }

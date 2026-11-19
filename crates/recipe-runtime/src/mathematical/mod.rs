@@ -57,3 +57,9 @@ mod parse_derived_domain;
 mod row_equality;
 pub use derived_model::{compile_derived_model, parse_derived_model, run_derived_model};
 pub use derived_model_spec::DerivedModelSpec;
+
+mod controlled_model_error;
+mod controlled_solve;
+mod finish_assignment;
+pub use controlled_model_error::ControlledModelError;
+pub use controlled_solve::solve_model_controlled;
