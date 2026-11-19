@@ -1,0 +1,1 @@
+export type CountValueConstraint = { readonly kind: 'count_value'; readonly variables: readonly number[]; readonly value: bigint; readonly min: number; readonly max: number; readonly weight: bigint; readonly tier: 'hard' | 'soft' };

@@ -7,5 +7,16 @@
   "gypfile": true,
   "scripts": {
     "build": "node-gyp rebuild"
-  }
+  },
+  "files": [
+    "binding.gyp",
+    "native.c",
+    "index.js",
+    "index.d.ts",
+    "decode-result.js",
+    "encode-problem.js",
+    "integers.js",
+    "solve-error.js",
+    "types"
+  ]
 }
