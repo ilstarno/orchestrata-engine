@@ -56,13 +56,23 @@ pub mod solution;
 pub mod solution_comparison;
 #[path = "solution_comparison_error.rs"]
 pub mod solution_comparison_error;
+#[path = "solution_evidence.rs"]
+pub mod solution_evidence;
 #[path = "solution_validation.rs"]
 pub mod solution_validation;
 #[path = "solution_validation_error.rs"]
 pub mod solution_validation_error;
+#[path = "solve_objective.rs"]
+pub mod solve_objective;
+#[path = "solve_report.rs"]
+pub mod solve_report;
+#[path = "solve_termination.rs"]
+pub mod solve_termination;
 #[path = "validation.rs"]
 pub mod validation;
 #[path = "variable.rs"]
 pub mod variable;
+#[path = "verification_scope.rs"]
+pub mod verification_scope;
 #[path = "wide_score.rs"]
 mod wide_score;

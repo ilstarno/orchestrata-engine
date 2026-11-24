@@ -1,0 +1,175 @@
+{
+  "version": 1,
+  "snapshot": {
+    "id": "synthetic-maintenance-window-01",
+    "metrics": [
+      {
+        "id": "estimated_cost",
+        "unit": "USD_cent"
+      },
+      {
+        "id": "estimated_delay",
+        "unit": "minute"
+      }
+    ],
+    "resources": [
+      {
+        "id": "crew-a",
+        "capacity": 2
+      },
+      {
+        "id": "crew-b",
+        "capacity": 2
+      },
+      {
+        "id": "crew-c",
+        "capacity": 1
+      }
+    ],
+    "jobs": [
+      {
+        "id": "inspection-101",
+        "options": [
+          {
+            "resource_id": "crew-a",
+            "estimates": [
+              10000,
+              10
+            ]
+          },
+          {
+            "resource_id": "crew-b",
+            "estimates": [
+              1000,
+              2
+            ]
+          }
+        ]
+      },
+      {
+        "id": "repair-102",
+        "options": [
+          {
+            "resource_id": "crew-a",
+            "estimates": [
+              3000,
+              50
+            ]
+          },
+          {
+            "resource_id": "crew-b",
+            "estimates": [
+              8000,
+              10
+            ]
+          }
+        ]
+      },
+      {
+        "id": "repair-103",
+        "options": [
+          {
+            "resource_id": "crew-a",
+            "estimates": [
+              4000,
+              45
+            ]
+          },
+          {
+            "resource_id": "crew-b",
+            "estimates": [
+              9000,
+              5
+            ]
+          }
+        ]
+      },
+      {
+        "id": "service-104",
+        "options": [
+          {
+            "resource_id": "crew-b",
+            "estimates": [
+              5000,
+              40
+            ]
+          },
+          {
+            "resource_id": "crew-c",
+            "estimates": [
+              11000,
+              8
+            ]
+          }
+        ]
+      },
+      {
+        "id": "service-105",
+        "options": [
+          {
+            "resource_id": "crew-b",
+            "estimates": [
+              6000,
+              35
+            ]
+          },
+          {
+            "resource_id": "crew-c",
+            "estimates": [
+              12000,
+              4
+            ]
+          }
+        ]
+      },
+      {
+        "id": "inspection-106",
+        "options": [
+          {
+            "resource_id": "crew-c",
+            "estimates": [
+              2000,
+              70
+            ]
+          }
+        ]
+      },
+      {
+        "id": "specialist-107",
+        "options": []
+      }
+    ],
+    "incumbent": [
+      "crew-a",
+      "crew-b",
+      "crew-a",
+      "crew-c",
+      null,
+      null,
+      null
+    ],
+    "commitments": [
+      {
+        "job_id": "inspection-101",
+        "resource_id": "crew-a"
+      }
+    ],
+    "assumptions": [
+      "Synthetic single planning window; capacities count whole jobs.",
+      "Eligibility and estimates are supplied, not inferred from live systems.",
+      "Delay is additive estimated waiting, not travel or completion time.",
+      "No time windows, calendars, routing, or minimum-change objective."
+    ]
+  },
+  "policies": [
+    {
+      "id": "lower-cost",
+      "minimize_metric": "estimated_cost"
+    },
+    {
+      "id": "lower-delay",
+      "minimize_metric": "estimated_delay"
+    }
+  ],
+  "verification_work": 1000000
+}

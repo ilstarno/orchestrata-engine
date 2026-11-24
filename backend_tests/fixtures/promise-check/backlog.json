@@ -1,0 +1,1010 @@
+{
+  "version": 1,
+  "snapshot": {
+    "id": "synthetic-maintenance-backlog-48",
+    "metrics": [
+      {
+        "id": "estimated_cost",
+        "unit": "USD_cent"
+      },
+      {
+        "id": "estimated_delay",
+        "unit": "minute"
+      }
+    ],
+    "resources": [
+      {
+        "id": "crew-0",
+        "capacity": 7
+      },
+      {
+        "id": "crew-1",
+        "capacity": 7
+      },
+      {
+        "id": "crew-2",
+        "capacity": 7
+      },
+      {
+        "id": "crew-3",
+        "capacity": 7
+      },
+      {
+        "id": "crew-4",
+        "capacity": 7
+      },
+      {
+        "id": "crew-5",
+        "capacity": 7
+      }
+    ],
+    "jobs": [
+      {
+        "id": "work-000",
+        "options": []
+      },
+      {
+        "id": "work-001",
+        "options": [
+          {
+            "resource_id": "crew-4",
+            "estimates": [
+              12000,
+              9
+            ]
+          }
+        ]
+      },
+      {
+        "id": "work-002",
+        "options": [
+          {
+            "resource_id": "crew-1",
+            "estimates": [
+              10700,
+              25
+            ]
+          },
+          {
+            "resource_id": "crew-3",
+            "estimates": [
+              11700,
+              13
+            ]
+          }
+        ]
+      },
+      {
+        "id": "work-003",
+        "options": [
+          {
+            "resource_id": "crew-1",
+            "estimates": [
+              6800,
+              19
+            ]
+          },
+          {
+            "resource_id": "crew-2",
+            "estimates": [
+              2800,
+              23
+            ]
+          }
+        ]
+      },
+      {
+        "id": "work-004",
+        "options": [
+          {
+            "resource_id": "crew-0",
+            "estimates": [
+              17600,
+              9
+            ]
+          },
+          {
+            "resource_id": "crew-2",
+            "estimates": [
+              17100,
+              6
+            ]
+          },
+          {
+            "resource_id": "crew-4",
+            "estimates": [
+              14800,
+              50
+            ]
+          }
+        ]
+      },
+      {
+        "id": "work-005",
+        "options": [
+          {
+            "resource_id": "crew-3",
+            "estimates": [
+              13500,
+              71
+            ]
+          }
+        ]
+      },
+      {
+        "id": "work-006",
+        "options": [
+          {
+            "resource_id": "crew-2",
+            "estimates": [
+              12000,
+              84
+            ]
+          },
+          {
+            "resource_id": "crew-3",
+            "estimates": [
+              5000,
+              16
+            ]
+          },
+          {
+            "resource_id": "crew-1",
+            "estimates": [
+              6400,
+              98
+            ]
+          }
+        ]
+      },
+      {
+        "id": "work-007",
+        "options": [
+          {
+            "resource_id": "crew-3",
+            "estimates": [
+              13600,
+              44
+            ]
+          },
+          {
+            "resource_id": "crew-4",
+            "estimates": [
+              14700,
+              52
+            ]
+          },
+          {
+            "resource_id": "crew-1",
+            "estimates": [
+              13400,
+              13
+            ]
+          }
+        ]
+      },
+      {
+        "id": "work-008",
+        "options": [
+          {
+            "resource_id": "crew-0",
+            "estimates": [
+              14700,
+              70
+            ]
+          },
+          {
+            "resource_id": "crew-1",
+            "estimates": [
+              15100,
+              67
+            ]
+          }
+        ]
+      },
+      {
+        "id": "work-009",
+        "options": [
+          {
+            "resource_id": "crew-2",
+            "estimates": [
+              15400,
+              22
+            ]
+          }
+        ]
+      },
+      {
+        "id": "work-010",
+        "options": [
+          {
+            "resource_id": "crew-4",
+            "estimates": [
+              6800,
+              31
+            ]
+          },
+          {
+            "resource_id": "crew-5",
+            "estimates": [
+              14100,
+              60
+            ]
+          },
+          {
+            "resource_id": "crew-0",
+            "estimates": [
+              16800,
+              83
+            ]
+          }
+        ]
+      },
+      {
+        "id": "work-011",
+        "options": [
+          {
+            "resource_id": "crew-1",
+            "estimates": [
+              14900,
+              33
+            ]
+          },
+          {
+            "resource_id": "crew-5",
+            "estimates": [
+              13300,
+              53
+            ]
+          }
+        ]
+      },
+      {
+        "id": "work-012",
+        "options": [
+          {
+            "resource_id": "crew-3",
+            "estimates": [
+              3400,
+              25
+            ]
+          },
+          {
+            "resource_id": "crew-2",
+            "estimates": [
+              6900,
+              48
+            ]
+          },
+          {
+            "resource_id": "crew-0",
+            "estimates": [
+              9100,
+              35
+            ]
+          }
+        ]
+      },
+      {
+        "id": "work-013",
+        "options": []
+      },
+      {
+        "id": "work-014",
+        "options": [
+          {
+            "resource_id": "crew-5",
+            "estimates": [
+              15800,
+              56
+            ]
+          },
+          {
+            "resource_id": "crew-3",
+            "estimates": [
+              14500,
+              61
+            ]
+          }
+        ]
+      },
+      {
+        "id": "work-015",
+        "options": [
+          {
+            "resource_id": "crew-0",
+            "estimates": [
+              4600,
+              55
+            ]
+          }
+        ]
+      },
+      {
+        "id": "work-016",
+        "options": [
+          {
+            "resource_id": "crew-2",
+            "estimates": [
+              17000,
+              16
+            ]
+          },
+          {
+            "resource_id": "crew-0",
+            "estimates": [
+              17800,
+              66
+            ]
+          }
+        ]
+      },
+      {
+        "id": "work-017",
+        "options": [
+          {
+            "resource_id": "crew-4",
+            "estimates": [
+              4600,
+              96
+            ]
+          }
+        ]
+      },
+      {
+        "id": "work-018",
+        "options": [
+          {
+            "resource_id": "crew-0",
+            "estimates": [
+              13600,
+              10
+            ]
+          }
+        ]
+      },
+      {
+        "id": "work-019",
+        "options": [
+          {
+            "resource_id": "crew-4",
+            "estimates": [
+              14300,
+              76
+            ]
+          },
+          {
+            "resource_id": "crew-2",
+            "estimates": [
+              17200,
+              8
+            ]
+          },
+          {
+            "resource_id": "crew-3",
+            "estimates": [
+              17100,
+              76
+            ]
+          }
+        ]
+      },
+      {
+        "id": "work-020",
+        "options": [
+          {
+            "resource_id": "crew-3",
+            "estimates": [
+              3600,
+              54
+            ]
+          },
+          {
+            "resource_id": "crew-4",
+            "estimates": [
+              5100,
+              47
+            ]
+          },
+          {
+            "resource_id": "crew-1",
+            "estimates": [
+              7800,
+              84
+            ]
+          }
+        ]
+      },
+      {
+        "id": "work-021",
+        "options": [
+          {
+            "resource_id": "crew-1",
+            "estimates": [
+              2700,
+              64
+            ]
+          },
+          {
+            "resource_id": "crew-4",
+            "estimates": [
+              5000,
+              20
+            ]
+          },
+          {
+            "resource_id": "crew-3",
+            "estimates": [
+              17700,
+              16
+            ]
+          }
+        ]
+      },
+      {
+        "id": "work-022",
+        "options": [
+          {
+            "resource_id": "crew-4",
+            "estimates": [
+              7100,
+              38
+            ]
+          },
+          {
+            "resource_id": "crew-5",
+            "estimates": [
+              9100,
+              54
+            ]
+          },
+          {
+            "resource_id": "crew-1",
+            "estimates": [
+              16700,
+              8
+            ]
+          }
+        ]
+      },
+      {
+        "id": "work-023",
+        "options": [
+          {
+            "resource_id": "crew-2",
+            "estimates": [
+              9100,
+              92
+            ]
+          },
+          {
+            "resource_id": "crew-5",
+            "estimates": [
+              11500,
+              12
+            ]
+          },
+          {
+            "resource_id": "crew-0",
+            "estimates": [
+              5100,
+              22
+            ]
+          }
+        ]
+      },
+      {
+        "id": "work-024",
+        "options": [
+          {
+            "resource_id": "crew-5",
+            "estimates": [
+              13200,
+              26
+            ]
+          },
+          {
+            "resource_id": "crew-1",
+            "estimates": [
+              5800,
+              10
+            ]
+          },
+          {
+            "resource_id": "crew-4",
+            "estimates": [
+              6000,
+              27
+            ]
+          }
+        ]
+      },
+      {
+        "id": "work-025",
+        "options": [
+          {
+            "resource_id": "crew-2",
+            "estimates": [
+              11200,
+              43
+            ]
+          }
+        ]
+      },
+      {
+        "id": "work-026",
+        "options": []
+      },
+      {
+        "id": "work-027",
+        "options": [
+          {
+            "resource_id": "crew-2",
+            "estimates": [
+              7400,
+              56
+            ]
+          },
+          {
+            "resource_id": "crew-5",
+            "estimates": [
+              3600,
+              80
+            ]
+          }
+        ]
+      },
+      {
+        "id": "work-028",
+        "options": [
+          {
+            "resource_id": "crew-3",
+            "estimates": [
+              3800,
+              60
+            ]
+          },
+          {
+            "resource_id": "crew-1",
+            "estimates": [
+              4500,
+              88
+            ]
+          }
+        ]
+      },
+      {
+        "id": "work-029",
+        "options": [
+          {
+            "resource_id": "crew-3",
+            "estimates": [
+              5900,
+              6
+            ]
+          },
+          {
+            "resource_id": "crew-4",
+            "estimates": [
+              15500,
+              25
+            ]
+          },
+          {
+            "resource_id": "crew-2",
+            "estimates": [
+              12600,
+              50
+            ]
+          }
+        ]
+      },
+      {
+        "id": "work-030",
+        "options": [
+          {
+            "resource_id": "crew-4",
+            "estimates": [
+              10200,
+              20
+            ]
+          }
+        ]
+      },
+      {
+        "id": "work-031",
+        "options": [
+          {
+            "resource_id": "crew-1",
+            "estimates": [
+              3800,
+              41
+            ]
+          },
+          {
+            "resource_id": "crew-0",
+            "estimates": [
+              15300,
+              36
+            ]
+          },
+          {
+            "resource_id": "crew-4",
+            "estimates": [
+              3100,
+              16
+            ]
+          }
+        ]
+      },
+      {
+        "id": "work-032",
+        "options": [
+          {
+            "resource_id": "crew-0",
+            "estimates": [
+              15600,
+              19
+            ]
+          },
+          {
+            "resource_id": "crew-5",
+            "estimates": [
+              4200,
+              11
+            ]
+          }
+        ]
+      },
+      {
+        "id": "work-033",
+        "options": [
+          {
+            "resource_id": "crew-4",
+            "estimates": [
+              7600,
+              48
+            ]
+          },
+          {
+            "resource_id": "crew-1",
+            "estimates": [
+              3500,
+              70
+            ]
+          }
+        ]
+      },
+      {
+        "id": "work-034",
+        "options": [
+          {
+            "resource_id": "crew-4",
+            "estimates": [
+              2800,
+              80
+            ]
+          },
+          {
+            "resource_id": "crew-1",
+            "estimates": [
+              2400,
+              56
+            ]
+          }
+        ]
+      },
+      {
+        "id": "work-035",
+        "options": [
+          {
+            "resource_id": "crew-2",
+            "estimates": [
+              6800,
+              70
+            ]
+          }
+        ]
+      },
+      {
+        "id": "work-036",
+        "options": [
+          {
+            "resource_id": "crew-3",
+            "estimates": [
+              17000,
+              34
+            ]
+          }
+        ]
+      },
+      {
+        "id": "work-037",
+        "options": [
+          {
+            "resource_id": "crew-0",
+            "estimates": [
+              11500,
+              94
+            ]
+          },
+          {
+            "resource_id": "crew-1",
+            "estimates": [
+              17900,
+              89
+            ]
+          }
+        ]
+      },
+      {
+        "id": "work-038",
+        "options": [
+          {
+            "resource_id": "crew-2",
+            "estimates": [
+              17900,
+              23
+            ]
+          },
+          {
+            "resource_id": "crew-0",
+            "estimates": [
+              3300,
+              51
+            ]
+          }
+        ]
+      },
+      {
+        "id": "work-039",
+        "options": []
+      },
+      {
+        "id": "work-040",
+        "options": [
+          {
+            "resource_id": "crew-0",
+            "estimates": [
+              7000,
+              98
+            ]
+          },
+          {
+            "resource_id": "crew-4",
+            "estimates": [
+              10000,
+              84
+            ]
+          },
+          {
+            "resource_id": "crew-1",
+            "estimates": [
+              15600,
+              15
+            ]
+          }
+        ]
+      },
+      {
+        "id": "work-041",
+        "options": [
+          {
+            "resource_id": "crew-2",
+            "estimates": [
+              11500,
+              87
+            ]
+          }
+        ]
+      },
+      {
+        "id": "work-042",
+        "options": [
+          {
+            "resource_id": "crew-0",
+            "estimates": [
+              3300,
+              63
+            ]
+          }
+        ]
+      },
+      {
+        "id": "work-043",
+        "options": [
+          {
+            "resource_id": "crew-5",
+            "estimates": [
+              4400,
+              84
+            ]
+          },
+          {
+            "resource_id": "crew-2",
+            "estimates": [
+              9600,
+              9
+            ]
+          },
+          {
+            "resource_id": "crew-3",
+            "estimates": [
+              11100,
+              75
+            ]
+          }
+        ]
+      },
+      {
+        "id": "work-044",
+        "options": [
+          {
+            "resource_id": "crew-5",
+            "estimates": [
+              10200,
+              55
+            ]
+          }
+        ]
+      },
+      {
+        "id": "work-045",
+        "options": [
+          {
+            "resource_id": "crew-5",
+            "estimates": [
+              17800,
+              8
+            ]
+          },
+          {
+            "resource_id": "crew-3",
+            "estimates": [
+              5600,
+              90
+            ]
+          },
+          {
+            "resource_id": "crew-4",
+            "estimates": [
+              14000,
+              79
+            ]
+          }
+        ]
+      },
+      {
+        "id": "work-046",
+        "options": [
+          {
+            "resource_id": "crew-4",
+            "estimates": [
+              14900,
+              28
+            ]
+          },
+          {
+            "resource_id": "crew-3",
+            "estimates": [
+              10100,
+              44
+            ]
+          },
+          {
+            "resource_id": "crew-5",
+            "estimates": [
+              13900,
+              27
+            ]
+          }
+        ]
+      },
+      {
+        "id": "work-047",
+        "options": [
+          {
+            "resource_id": "crew-4",
+            "estimates": [
+              16900,
+              63
+            ]
+          }
+        ]
+      }
+    ],
+    "incumbent": [
+      null,
+      "crew-4",
+      "crew-1",
+      "crew-1",
+      "crew-0",
+      "crew-3",
+      "crew-2",
+      "crew-3",
+      "crew-0",
+      "crew-2",
+      "crew-4",
+      "crew-1",
+      "crew-3",
+      null,
+      "crew-5",
+      "crew-0",
+      "crew-2",
+      "crew-4",
+      "crew-0",
+      "crew-4",
+      "crew-3",
+      "crew-1",
+      "crew-4",
+      "crew-2",
+      "crew-5",
+      "crew-2",
+      null,
+      "crew-2",
+      "crew-3",
+      "crew-3",
+      "crew-4",
+      "crew-1",
+      "crew-0",
+      "crew-4",
+      "crew-1",
+      "crew-2",
+      "crew-3",
+      "crew-0",
+      "crew-0",
+      null,
+      "crew-1",
+      null,
+      null,
+      "crew-5",
+      "crew-5",
+      "crew-5",
+      "crew-5",
+      null
+    ],
+    "commitments": [
+      {
+        "job_id": "work-001",
+        "resource_id": "crew-4"
+      },
+      {
+        "job_id": "work-002",
+        "resource_id": "crew-1"
+      },
+      {
+        "job_id": "work-003",
+        "resource_id": "crew-1"
+      },
+      {
+        "job_id": "work-004",
+        "resource_id": "crew-0"
+      },
+      {
+        "job_id": "work-005",
+        "resource_id": "crew-3"
+      },
+      {
+        "job_id": "work-006",
+        "resource_id": "crew-2"
+      }
+    ],
+    "assumptions": [
+      "Synthetic single planning window; capacities count whole jobs.",
+      "Eligibility and estimates are supplied, not inferred from live systems.",
+      "Delay is additive estimated waiting, not travel or completion time.",
+      "No time windows, calendars, routing, or minimum-change objective."
+    ]
+  },
+  "policies": [
+    {
+      "id": "lower-cost",
+      "minimize_metric": "estimated_cost"
+    },
+    {
+      "id": "lower-delay",
+      "minimize_metric": "estimated_delay"
+    }
+  ],
+  "verification_work": 1000000
+}

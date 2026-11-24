@@ -62,3 +62,15 @@ path = "solver/no_overlap.rs"
 [[test]]
 name = "route_construction"
 path = "solver/route_construction.rs"
+
+[[test]]
+name = "solve_report"
+path = "solver/solve_report.rs"
+
+[[test]]
+name = "weighted_report"
+path = "solver/weighted_report.rs"
+
+[[test]]
+name = "promise_check"
+path = "solver/promise_check.rs"
